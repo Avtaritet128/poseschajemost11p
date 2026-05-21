@@ -2,63 +2,66 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Журнал посещаемости</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>Журнал посещаемости | Пары 1,2,3 + Drag & Drop</title>
     <style>
         * {
             box-sizing: border-box;
-            font-family: system-ui, 'Segoe UI', 'Roboto', 'Inter', sans-serif;
+            font-family: system-ui, -apple-system, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
         }
+
         body {
             background: #eef2f8;
             margin: 0;
-            padding: 24px 20px;
+            padding: 16px;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
         }
+
         .main-dashboard {
-            max-width: 1600px;
+            max-width: 1400px;
             width: 100%;
             background: white;
-            border-radius: 36px;
-            box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.2);
+            border-radius: 32px;
+            box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.15);
             overflow: hidden;
         }
+
         .journal-header {
             background: #0f2b3d;
-            padding: 1.2rem 2rem;
+            padding: 1.2rem 1.5rem;
             color: white;
         }
         .journal-header h1 {
             margin: 0;
-            font-size: 1.7rem;
+            font-size: 1.5rem;
+            font-weight: 650;
         }
         .journal-header p {
             margin: 0.4rem 0 0;
-            opacity: 0.75;
-            font-size: 0.9rem;
+            opacity: 0.8;
+            font-size: 0.8rem;
         }
+
         .top-control-panel {
             background: #ffffff;
-            padding: 1.2rem 2rem;
+            padding: 1rem 1.2rem;
             border-bottom: 1px solid #e4e9f0;
         }
         .mark-card {
             background: #f7f9fc;
-            border-radius: 28px;
-            padding: 1rem 1.6rem;
+            border-radius: 24px;
+            padding: 1rem;
         }
         .flex-row {
             display: flex;
-            flex-wrap: wrap;
-            gap: 16px;
-            align-items: flex-end;
+            flex-direction: column;
+            gap: 12px;
         }
         .input-group {
-            flex: 2;
-            min-width: 200px;
+            width: 100%;
         }
         .input-group label {
             font-size: 0.7rem;
@@ -69,7 +72,7 @@
         }
         .input-group input, .input-group select {
             width: 100%;
-            padding: 10px 14px;
+            padding: 12px 14px;
             border-radius: 60px;
             border: 1px solid #cbdae9;
             font-size: 0.9rem;
@@ -78,39 +81,44 @@
         .double-buttons {
             display: flex;
             gap: 12px;
+            margin-top: 4px;
         }
         .mark-btn {
+            flex: 1;
             background: #1f3b4c;
             border: none;
             color: white;
-            padding: 10px 24px;
+            padding: 12px 16px;
             border-radius: 60px;
             font-weight: 600;
             cursor: pointer;
             font-size: 0.85rem;
+            text-align: center;
             transition: 0.15s;
-        }
-        .mark-btn:hover {
-            transform: scale(0.97);
         }
         .mark-btn.remove-mode {
             background: #8b3c3c;
         }
+        .mark-btn:active {
+            transform: scale(0.97);
+        }
+
         .action-bar {
             background: #f9fbfd;
-            padding: 0.8rem 2rem;
+            padding: 0.8rem 1.2rem;
             border-bottom: 1px solid #e4e9f0;
             display: flex;
             justify-content: flex-end;
-            gap: 16px;
+            gap: 12px;
+            flex-wrap: wrap;
         }
         .reset-btn, .clear-storage-btn {
             background: #f1f5f9;
             border: 1px solid #cbd5e6;
-            padding: 7px 20px;
+            padding: 8px 18px;
             border-radius: 40px;
             font-weight: 500;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             cursor: pointer;
         }
         .clear-storage-btn {
@@ -118,126 +126,127 @@
             border-color: #fbc4c1;
             color: #b13e3e;
         }
+
         .two-columns {
             display: flex;
-            flex-wrap: wrap;
+            flex-direction: column;
             gap: 24px;
-            padding: 1.8rem 2rem;
+            padding: 1.2rem;
         }
-        .left-grid {
-            flex: 2;
-            min-width: 280px;
-            overflow-x: auto;
+        .left-grid, .right-summary {
+            width: 100%;
         }
-        .right-summary {
-            flex: 1.4;
-            min-width: 280px;
+
+        /* ТАБЛИЦА — мобильная карточка */
+        .attend-table {
+            display: block;
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+        }
+        .attend-table thead {
+            display: none;
+        }
+        .attend-table tbody {
             display: flex;
             flex-direction: column;
-            gap: 28px;
+            gap: 12px;
         }
-        .attend-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.85rem;
-            min-width: 680px;
-        }
-        .attend-table th {
-            background: #f8fafc;
-            padding: 14px 8px;
-            font-weight: 600;
-            border-bottom: 2px solid #dee4ec;
-            text-align: left;
+        .attend-table tr {
+            display: block;
+            background: white;
+            border-radius: 20px;
+            border: 1px solid #e9edf2;
+            padding: 14px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.03);
         }
         .attend-table td {
-            padding: 10px 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 0;
             border-bottom: 1px solid #edf2f7;
         }
+        .attend-table td:last-child {
+            border-bottom: none;
+        }
         .student-fullname {
-            font-weight: 550;
+            font-weight: 600;
+            font-size: 1rem;
             color: #0a1c2f;
-            white-space: nowrap;
+            flex: 1;
         }
-        .badge-present {
-            background: #dcfce7;
-            color: #15803d;
+        .mobile-subject-label {
             font-weight: 600;
-            border-radius: 32px;
-            padding: 4px 10px;
-            display: inline-block;
             font-size: 0.7rem;
+            color: #2c5a7a;
+            background: #eef2ff;
+            padding: 4px 10px;
+            border-radius: 30px;
+            display: inline-block;
+        }
+        .badge-present, .badge-absent {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 32px;
+            font-size: 0.7rem;
+            font-weight: 600;
             min-width: 110px;
             text-align: center;
         }
-        .badge-absent {
-            background: #fee9e6;
-            color: #b91c1c;
-            font-weight: 600;
-            border-radius: 32px;
-            padding: 4px 10px;
-            display: inline-block;
-            font-size: 0.7rem;
-            min-width: 110px;
-            text-align: center;
-        }
-        .subject-header {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 4px;
-        }
-        .subject-name {
-            font-size: 0.85rem;
-            font-weight: 700;
-        }
-        .subject-stats {
-            font-size: 0.65rem;
-            background: #e9edf2;
-            padding: 2px 8px;
-            border-radius: 40px;
-            color: #1e3a5f;
-        }
+        .badge-present { background: #dcfce7; color: #15803d; }
+        .badge-absent { background: #fee9e6; color: #b91c1c; }
         .action-icons {
             display: flex;
-            gap: 6px;
-            justify-content: center;
-            margin-top: 5px;
+            gap: 8px;
+            margin-left: 8px;
         }
         .icon-btn {
             background: #f1f5f9;
             border: 1px solid #cbd5e1;
             border-radius: 30px;
-            padding: 3px 10px;
-            font-size: 0.65rem;
+            padding: 5px 12px;
+            font-size: 0.7rem;
             font-weight: 600;
             cursor: pointer;
         }
         .icon-btn.add { background: #e6f7e6; color: #2b6e2f; }
         .icon-btn.remove { background: #ffe6e5; color: #b13e3e; }
+
+        /* Сводки */
         .summary-card {
             background: #fefefe;
             border-radius: 24px;
             border: 1px solid #e9edf2;
+            margin-bottom: 16px;
         }
         .card-header {
             background: #f1f5f9;
-            padding: 12px 18px;
+            padding: 12px 16px;
             font-weight: 700;
             display: flex;
             justify-content: space-between;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 0.9rem;
         }
         .card-header .counter {
             background: white;
             border-radius: 40px;
-            padding: 2px 10px;
+            padding: 2px 12px;
             font-size: 0.7rem;
         }
-        .split-lists { padding: 12px 16px; }
-        .present-title { color: #15803d; font-weight: 600; font-size: 0.7rem; margin-bottom: 8px; }
-        .absent-title { color: #b91c1c; font-weight: 600; font-size: 0.7rem; margin-bottom: 8px; }
+        .split-lists { padding: 12px; }
+        .present-block, .absent-block { margin-bottom: 16px; }
+        .present-title, .absent-title {
+            font-weight: 600;
+            font-size: 0.7rem;
+            margin-bottom: 8px;
+        }
+        .present-title { color: #15803d; }
+        .absent-title { color: #b91c1c; }
         .student-tag {
             background: #f8fafc;
-            padding: 4px 12px;
+            padding: 6px 14px;
             border-radius: 40px;
             font-size: 0.75rem;
             margin: 4px 6px 4px 0;
@@ -246,28 +255,62 @@
             cursor: grab;
         }
         .student-tag:active { cursor: grabbing; }
-        .drop-zone { min-height: 60px; border-radius: 16px; padding: 4px 0; }
+        .drop-zone {
+            min-height: 70px;
+            border-radius: 20px;
+            padding: 8px;
+            background: #fafcff;
+            transition: 0.1s;
+        }
         .drop-zone.drag-over { background: #eef2ff; }
+        .empty-message {
+            font-size: 0.7rem;
+            color: #94a3b8;
+            padding: 12px;
+            text-align: center;
+            font-style: italic;
+        }
         .legend-bottom {
             display: flex;
-            gap: 24px;
-            justify-content: center;
             flex-wrap: wrap;
-            padding: 1rem 2rem;
+            gap: 12px;
+            justify-content: center;
+            padding: 1rem;
             background: #f9fbfd;
             border-top: 1px solid #e4e9f0;
-            font-size: 0.8rem;
+            font-size: 0.7rem;
         }
-        .empty-message { color: #94a3b8; padding: 8px 0; font-style: italic; font-size: 0.7rem; }
-        @media (max-width: 900px) { .two-columns { flex-direction: column; } }
+
+        /* Планшеты и десктоп */
+        @media (min-width: 768px) {
+            body { padding: 24px; }
+            .flex-row { flex-direction: row; align-items: flex-end; }
+            .input-group { flex: 2; min-width: 200px; }
+            .double-buttons { flex: 1; margin-top: 0; }
+            .two-columns { flex-direction: row; padding: 1.8rem; }
+            .left-grid { flex: 2; }
+            .right-summary { flex: 1.4; }
+            .attend-table { display: table; }
+            .attend-table thead { display: table-header-group; }
+            .attend-table tbody { display: table-row-group; }
+            .attend-table tr { display: table-row; padding: 0; box-shadow: none; border: none; border-bottom: 1px solid #edf2f7; }
+            .attend-table td { display: table-cell; padding: 12px 8px; border-bottom: 1px solid #edf2f7; }
+            .mobile-subject-label { display: none; }
+        }
+        @media (max-width: 767px) {
+            .mobile-subject-label { display: inline-block; }
+            .attend-table td { flex-direction: column; align-items: flex-start; gap: 8px; }
+            .attend-table td .action-icons { margin-left: 0; margin-top: 6px; }
+        }
     </style>
 </head>
 <body>
 <div class="main-dashboard">
     <div class="journal-header">
         <h1>📋 Журнал посещаемости</h1>
-        <p></p>
+        <p>1 пара — Литература · 2 пара — Математика · 3 пара — Иностранный язык</p>
     </div>
+
     <div class="top-control-panel">
         <div class="mark-card">
             <div class="flex-row">
@@ -277,38 +320,53 @@
                     <datalist id="studentsDatalist"></datalist>
                 </div>
                 <div class="input-group">
-                    <label>Предмет</label>
+                    <label>Предмет (пара)</label>
                     <select id="subjectPairSelect">
-                        <option value="literature">📖 Литература</option>
-                        <option value="mathematics">📐 Математика</option>
-                        <option value="language">🌍 Иностранный язык</option>
+                        <option value="literature">📖 1 пара — Литература</option>
+                        <option value="mathematics">📐 2 пара — Математика</option>
+                        <option value="language">🌍 3 пара — Иностранный язык</option>
                     </select>
                 </div>
                 <div class="double-buttons">
-                    <button class="mark-btn" id="markPresentBtn">➕ Присутствовал(а)</button>
-                    <button class="mark-btn remove-mode" id="markAbsentBtn">➖ Отсутствовал(а)</button>
+                    <button class="mark-btn" id="markPresentBtn">➕ Присутств.</button>
+                    <button class="mark-btn remove-mode" id="markAbsentBtn">➖ Отсутств.</button>
                 </div>
             </div>
         </div>
     </div>
+
     <div class="action-bar">
-        <button class="reset-btn" id="globalResetBtn">⟳ Сбросить все отметки</button>
-        <button class="clear-storage-btn" id="clearStorageBtn">🗑 Очистить сохранённые данные</button>
+        <button class="reset-btn" id="globalResetBtn">⟳ Сбросить всё</button>
+        <button class="clear-storage-btn" id="clearStorageBtn">🗑 Очистить данные</button>
     </div>
+
     <div class="two-columns">
         <div class="left-grid">
             <table class="attend-table" id="mainTable">
-                <thead><tr><th>👥 Студент</th><th><div class="subject-header"><div class="subject-name">📖 Литература</div><div class="subject-stats" id="litStatBadge">0/20</div></div></th><th><div class="subject-header"><div class="subject-name">📐 Математика</div><div class="subject-stats" id="mathStatBadge">0/20</div></div></th><th><div class="subject-header"><div class="subject-name">🌍 Иностранный язык</div><div class="subject-stats" id="langStatBadge">0/20</div></div></th></tr></thead>
+                <thead>
+                    <tr>
+                        <th>👥 Студент</th>
+                        <th>📖 1 пара — Литература <span id="litStatBadge" style="font-size:0.7rem; background:#e9edf2; padding:2px 8px; border-radius:40px; margin-left:6px;">0/20</span></th>
+                        <th>📐 2 пара — Математика <span id="mathStatBadge" style="font-size:0.7rem; background:#e9edf2; padding:2px 8px; border-radius:40px; margin-left:6px;">0/20</span></th>
+                        <th>🌍 3 пара — Иностранный <span id="langStatBadge" style="font-size:0.7rem; background:#e9edf2; padding:2px 8px; border-radius:40px; margin-left:6px;">0/20</span></th>
+                    </tr>
+                </thead>
                 <tbody id="tableDynamicBody"></tbody>
             </table>
         </div>
         <div class="right-summary" id="summaryContainer"></div>
     </div>
+
     <div class="legend-bottom">
-        
+        <span>🟢 Присутствовал(а)</span>
+        <span>🔴 Отсутствовал(а)</span>
+        <span>🖱️ Перетащите имя между списками</span>
+        <span>💾 Автосохранение</span>
     </div>
 </div>
+
 <script>
+    // ---------- СПИСОК СТУДЕНТОВ ----------
     const FULL_STUDENT_LIST = [
         "Аношин Михаил Александрович","Богданович Андрей Сергеевич","Бодров Максим Вячеславович",
         "Викторов Александр Дмитриевич","Гневанов Арсений Данилович","Громов Денис Алексеевич",
@@ -318,30 +376,291 @@
         "Семянченков Руслан Ихтиёрович","Хохлов Егор Андреевич","Цаплин Иван Николаевич",
         "Шалагин Артём Алексеевич","Яничев Егор Андреевич"
     ];
+
     function getShortName(full) { let p = full.trim().split(/\s+/); return (p.length>=2) ? `${p[0]} ${p[1]}` : full; }
     const shortToFull = new Map(); FULL_STUDENT_LIST.forEach(full => shortToFull.set(getShortName(full), full));
     const SHORT_NAMES_LIST = FULL_STUDENT_LIST.map(full => getShortName(full));
+
     let attendanceRecords = [];
-    const STORAGE_KEY = 'attendanceRecords_v1';
-    function saveToLocalStorage() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(attendanceRecords.map(r=>({fullName:r.fullName, literature:r.literature, mathematics:r.mathematics, language:r.language})))); } catch(e){} }
-    function loadFromLocalStorage() { let saved = localStorage.getItem(STORAGE_KEY); if(!saved) return null; try { let parsed = JSON.parse(saved); if(Array.isArray(parsed) && parsed.length===FULL_STUDENT_LIST.length) { let valid=true; for(let i=0;i<FULL_STUDENT_LIST.length;i++) if(parsed[i].fullName!==FULL_STUDENT_LIST[i]) { valid=false; break; } if(valid) return parsed; } return null; } catch(e){ return null; } }
-    function initData() { let saved=loadFromLocalStorage(); if(saved) attendanceRecords=saved; else attendanceRecords=FULL_STUDENT_LIST.map(fullName=>({fullName, literature:false, mathematics:false, language:false})); }
-    function updateHeaderStats() { let lit=0,math=0,lang=0; for(let s of attendanceRecords) { if(s.literature) lit++; if(s.mathematics) math++; if(s.language) lang++; } document.getElementById('litStatBadge').innerText=`${lit}/20`; document.getElementById('mathStatBadge').innerText=`${math}/20`; document.getElementById('langStatBadge').innerText=`${lang}/20`; }
-    function renderSubjectCell(fullName,subjectKey,isPresent) { let statusText=isPresent?'Присутствовал(а)':'Отсутствовал(а)'; let badgeClass=isPresent?'badge-present':'badge-absent'; return `<div style="text-align:center"><div class="${badgeClass}">${statusText}</div><div class="action-icons"><button class="icon-btn add" data-fullname="${escapeHtml(fullName)}" data-subject="${subjectKey}">➕</button><button class="icon-btn remove" data-fullname="${escapeHtml(fullName)}" data-subject="${subjectKey}">➖</button></div></div>`; }
-    function renderMainTable() { let tbody=document.getElementById('tableDynamicBody'); if(!tbody) return; tbody.innerHTML=''; for(let s of attendanceRecords) { let row=tbody.insertRow(); row.insertCell(0).innerHTML=`<span class="student-fullname">${escapeHtml(getShortName(s.fullName))}</span>`; row.insertCell(1).innerHTML=renderSubjectCell(s.fullName,'literature',s.literature); row.insertCell(2).innerHTML=renderSubjectCell(s.fullName,'mathematics',s.mathematics); row.insertCell(3).innerHTML=renderSubjectCell(s.fullName,'language',s.language); } updateHeaderStats(); bindInlineButtons(); }
-    function setAttendanceStatus(fullName,subjectKey,isPresent) { let student=attendanceRecords.find(s=>s.fullName===fullName); if(!student || student[subjectKey]===isPresent) return false; student[subjectKey]=isPresent; renderMainTable(); renderDraggableSummaries(); saveToLocalStorage(); return true; }
-    function renderDraggableSummaries() { let container=document.getElementById('summaryContainer'); if(!container) return; let subjects=[{key:'literature',title:'📖 Литература'},{key:'mathematics',title:'📐 Математика'},{key:'language',title:'🌍 Иностранный язык'}]; let html=''; for(let sub of subjects) { let present=[], absent=[]; for(let s of attendanceRecords) { let short=getShortName(s.fullName); if(s[sub.key]) present.push(short); else absent.push(short); } html+=`<div class="summary-card" data-subject="${sub.key}"><div class="card-header"><span>${sub.title}</span><span class="counter">${present.length}/20</span></div><div class="split-lists"><div class="present-block"><div class="present-title">✅ ПРИСУТСТВОВАЛ(А)</div><div class="drop-zone" data-zone-type="present" data-subject="${sub.key}">${present.length===0?'<div class="empty-message">— перетащите сюда —</div>':present.map(n=>`<span class="student-tag" draggable="true" data-name="${escapeHtml(n)}" data-subject="${sub.key}" data-status="present">${escapeHtml(n)}</span>`).join('')}</div></div><div class="absent-block"><div class="absent-title">❌ ОТСУТСТВОВАЛ(А)</div><div class="drop-zone" data-zone-type="absent" data-subject="${sub.key}">${absent.length===0?'<div class="empty-message">— перетащите сюда —</div>':absent.map(n=>`<span class="student-tag" draggable="true" data-name="${escapeHtml(n)}" data-subject="${sub.key}" data-status="absent">${escapeHtml(n)}</span>`).join('')}</div></div></div></div>`; } container.innerHTML=html; attachDragAndDropEvents(); }
-    let draggedItem=null;
-    function attachDragAndDropEvents() { document.querySelectorAll('.student-tag').forEach(el=>{ el.setAttribute('draggable','true'); el.ondragstart=e=>{ draggedItem={shortName:el.getAttribute('data-name'), subjectKey:el.getAttribute('data-subject'), sourceStatus:el.getAttribute('data-status')}; e.dataTransfer.setData('text/plain',draggedItem.shortName); el.style.opacity='0.5'; }; el.ondragend=e=>{ el.style.opacity=''; draggedItem=null; document.querySelectorAll('.drop-zone').forEach(z=>z.classList.remove('drag-over')); }; }); document.querySelectorAll('.drop-zone').forEach(zone=>{ zone.ondragover=e=>{ e.preventDefault(); zone.classList.add('drag-over'); }; zone.ondragleave=e=>zone.classList.remove('drag-over'); zone.ondrop=e=>{ e.preventDefault(); zone.classList.remove('drag-over'); if(!draggedItem) return; let targetType=zone.getAttribute('data-zone-type'), targetSubject=zone.getAttribute('data-subject'); if(draggedItem.subjectKey!==targetSubject){ showToast('Нельзя перемещать между разными предметами','#a13e3e'); return; } if((draggedItem.sourceStatus==='present' && targetType==='present')||(draggedItem.sourceStatus==='absent' && targetType==='absent')){ showToast('Студент уже в этом списке','#64748b'); return; } let fullName=shortToFull.get(draggedItem.shortName); if(!fullName) return; let newStatus=targetType==='present'; let student=attendanceRecords.find(s=>s.fullName===fullName); if(student && student[draggedItem.subjectKey]!==newStatus){ student[draggedItem.subjectKey]=newStatus; renderMainTable(); renderDraggableSummaries(); saveToLocalStorage(); showToast(`${draggedItem.shortName} теперь ${newStatus?'присутствует':'отсутствует'}`,newStatus?'#1f5e3a':'#a13e3e'); } }; }); }
-    function showToast(msg,bg){ let t=document.createElement('div'); t.textContent=msg; t.style.cssText=`position:fixed; bottom:20px; left:20px; background:${bg}; color:white; padding:8px 20px; border-radius:40px; font-size:0.8rem; z-index:999;`; document.body.appendChild(t); setTimeout(()=>t.remove(),1800); }
-    function bindInlineButtons(){ document.querySelectorAll('.icon-btn.add').forEach(btn=>{ btn.onclick=()=>setAttendanceStatus(btn.getAttribute('data-fullname'),btn.getAttribute('data-subject'),true); }); document.querySelectorAll('.icon-btn.remove').forEach(btn=>{ btn.onclick=()=>setAttendanceStatus(btn.getAttribute('data-fullname'),btn.getAttribute('data-subject'),false); }); }
-    function resetAll(){ if(confirm('Сбросить все отметки?')){ attendanceRecords.forEach(s=>{ s.literature=false; s.mathematics=false; s.language=false; }); renderMainTable(); renderDraggableSummaries(); saveToLocalStorage(); showToast('✨ Вся посещаемость сброшена','#2c3e5c'); } }
-    function clearAllSavedData(){ if(confirm('Очистить сохранённые данные?')){ localStorage.removeItem(STORAGE_KEY); attendanceRecords=FULL_STUDENT_LIST.map(n=>({fullName:n, literature:false, mathematics:false, language:false})); renderMainTable(); renderDraggableSummaries(); saveToLocalStorage(); showToast('🗑 Данные очищены','#8b3c3c'); } }
-    function findFullByInput(input){ let t=input.trim(); if(shortToFull.has(t)) return shortToFull.get(t); let lower=t.toLowerCase(), match=SHORT_NAMES_LIST.find(n=>n.toLowerCase()===lower); if(match) return shortToFull.get(match); let partial=SHORT_NAMES_LIST.filter(n=>n.toLowerCase().includes(lower)); return partial.length===1? shortToFull.get(partial[0]):null; }
-    function initPanelControls(){ let presentBtn=document.getElementById('markPresentBtn'), absentBtn=document.getElementById('markAbsentBtn'), nameInput=document.getElementById('studentNameField'), subjectSelect=document.getElementById('subjectPairSelect'); presentBtn.onclick=()=>{ let raw=nameInput.value.trim(); if(!raw){alert('Введите фамилию и имя');return;} let full=findFullByInput(raw); if(!full){alert('Студент не найден');return;} setAttendanceStatus(full,subjectSelect.value,true); nameInput.value=getShortName(full); }; absentBtn.onclick=()=>{ let raw=nameInput.value.trim(); if(!raw){alert('Введите фамилию и имя');return;} let full=findFullByInput(raw); if(!full){alert('Студент не найден');return;} setAttendanceStatus(full,subjectSelect.value,false); nameInput.value=getShortName(full); }; }
-    function populateDatalist(){ let dl=document.getElementById('studentsDatalist'); if(dl){ dl.innerHTML=''; SHORT_NAMES_LIST.forEach(n=>{ let opt=document.createElement('option'); opt.value=n; dl.appendChild(opt); }); } }
-    function escapeHtml(str){ return str.replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
-    function init(){ initData(); populateDatalist(); renderMainTable(); renderDraggableSummaries(); initPanelControls(); document.getElementById('globalResetBtn').onclick=resetAll; document.getElementById('clearStorageBtn').onclick=clearAllSavedData; }
+    const STORAGE_KEY = 'attendanceRecords_paras_v2';
+
+    function saveToLocalStorage() {
+        try {
+            const toSave = attendanceRecords.map(r => ({ fullName: r.fullName, literature: r.literature, mathematics: r.mathematics, language: r.language }));
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
+        } catch(e) {}
+    }
+    function loadFromLocalStorage() {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (!saved) return null;
+        try {
+            const parsed = JSON.parse(saved);
+            if (Array.isArray(parsed) && parsed.length === FULL_STUDENT_LIST.length) {
+                let valid = true;
+                for (let i = 0; i < FULL_STUDENT_LIST.length; i++) {
+                    if (parsed[i].fullName !== FULL_STUDENT_LIST[i]) { valid = false; break; }
+                }
+                if (valid) return parsed;
+            }
+            return null;
+        } catch(e) { return null; }
+    }
+    function initData() {
+        const saved = loadFromLocalStorage();
+        if (saved) attendanceRecords = saved;
+        else attendanceRecords = FULL_STUDENT_LIST.map(fullName => ({ fullName, literature: false, mathematics: false, language: false }));
+    }
+
+    function updateHeaderStats() {
+        let lit=0, math=0, lang=0;
+        for(let s of attendanceRecords) { if(s.literature) lit++; if(s.mathematics) math++; if(s.language) lang++; }
+        const litEl = document.getElementById('litStatBadge');
+        const mathEl = document.getElementById('mathStatBadge');
+        const langEl = document.getElementById('langStatBadge');
+        if(litEl) litEl.innerText = `${lit}/20`;
+        if(mathEl) mathEl.innerText = `${math}/20`;
+        if(langEl) langEl.innerText = `${lang}/20`;
+    }
+
+    // Рендер ячейки с подписью пары
+    function renderSubjectCell(fullName, subjectKey, isPresent, subjectLabel) {
+        const statusText = isPresent ? 'Присутствовал(а)' : 'Отсутствовал(а)';
+        const badgeClass = isPresent ? 'badge-present' : 'badge-absent';
+        return `<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; width:100%;">
+                    <span class="mobile-subject-label">${subjectLabel}</span>
+                    <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                        <span class="${badgeClass}">${statusText}</span>
+                        <div class="action-icons">
+                            <button class="icon-btn add" data-fullname="${escapeHtml(fullName)}" data-subject="${subjectKey}">➕</button>
+                            <button class="icon-btn remove" data-fullname="${escapeHtml(fullName)}" data-subject="${subjectKey}">➖</button>
+                        </div>
+                    </div>
+                </div>`;
+    }
+
+    function renderMainTable() {
+        const tbody = document.getElementById('tableDynamicBody');
+        if(!tbody) return;
+        tbody.innerHTML = '';
+        const subjects = [
+            { key: 'literature', label: '📖 1 пара — Литература' },
+            { key: 'mathematics', label: '📐 2 пара — Математика' },
+            { key: 'language', label: '🌍 3 пара — Иностранный' }
+        ];
+        for(const student of attendanceRecords) {
+            const row = tbody.insertRow();
+            const shortName = getShortName(student.fullName);
+            const nameCell = row.insertCell(0);
+            nameCell.innerHTML = `<span class="student-fullname">${escapeHtml(shortName)}</span>`;
+            const litCell = row.insertCell(1);
+            litCell.innerHTML = renderSubjectCell(student.fullName, 'literature', student.literature, subjects[0].label);
+            const mathCell = row.insertCell(2);
+            mathCell.innerHTML = renderSubjectCell(student.fullName, 'mathematics', student.mathematics, subjects[1].label);
+            const langCell = row.insertCell(3);
+            langCell.innerHTML = renderSubjectCell(student.fullName, 'language', student.language, subjects[2].label);
+        }
+        updateHeaderStats();
+        bindInlineButtons();
+    }
+
+    function setAttendanceStatus(fullName, subjectKey, isPresent) {
+        const student = attendanceRecords.find(s => s.fullName === fullName);
+        if(!student || student[subjectKey] === isPresent) return false;
+        student[subjectKey] = isPresent;
+        renderMainTable();
+        renderDraggableSummaries();
+        saveToLocalStorage();
+        return true;
+    }
+
+    // Сводные карточки с подписями пар
+    function renderDraggableSummaries() {
+        const container = document.getElementById('summaryContainer');
+        if(!container) return;
+        const subjects = [
+            { key: 'literature', title: '📖 1 пара — Литература' },
+            { key: 'mathematics', title: '📐 2 пара — Математика' },
+            { key: 'language', title: '🌍 3 пара — Иностранный язык' }
+        ];
+        let html = '';
+        for(let sub of subjects) {
+            const present = [], absent = [];
+            for(let s of attendanceRecords) {
+                const short = getShortName(s.fullName);
+                if(s[sub.key]) present.push(short);
+                else absent.push(short);
+            }
+            html += `<div class="summary-card" data-subject="${sub.key}">
+                        <div class="card-header">
+                            <span>${sub.title}</span>
+                            <span class="counter">${present.length}/20</span>
+                        </div>
+                        <div class="split-lists">
+                            <div class="present-block">
+                                <div class="present-title">✅ ПРИСУТСТВОВАЛ(А)</div>
+                                <div class="drop-zone" data-zone-type="present" data-subject="${sub.key}">
+                                    ${present.length===0 ? '<div class="empty-message">— перетащите сюда —</div>' : present.map(n => `<span class="student-tag" draggable="true" data-name="${escapeHtml(n)}" data-subject="${sub.key}" data-status="present">${escapeHtml(n)}</span>`).join('')}
+                                </div>
+                            </div>
+                            <div class="absent-block">
+                                <div class="absent-title">❌ ОТСУТСТВОВАЛ(А)</div>
+                                <div class="drop-zone" data-zone-type="absent" data-subject="${sub.key}">
+                                    ${absent.length===0 ? '<div class="empty-message">— перетащите сюда —</div>' : absent.map(n => `<span class="student-tag" draggable="true" data-name="${escapeHtml(n)}" data-subject="${sub.key}" data-status="absent">${escapeHtml(n)}</span>`).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+        }
+        container.innerHTML = html;
+        attachDragAndDropEvents();
+    }
+
+    let draggedItem = null;
+    function attachDragAndDropEvents() {
+        document.querySelectorAll('.student-tag').forEach(el => {
+            el.setAttribute('draggable', 'true');
+            el.ondragstart = e => {
+                draggedItem = {
+                    shortName: el.getAttribute('data-name'),
+                    subjectKey: el.getAttribute('data-subject'),
+                    sourceStatus: el.getAttribute('data-status')
+                };
+                e.dataTransfer.setData('text/plain', draggedItem.shortName);
+                el.style.opacity = '0.5';
+            };
+            el.ondragend = e => {
+                el.style.opacity = '';
+                draggedItem = null;
+                document.querySelectorAll('.drop-zone').forEach(z => z.classList.remove('drag-over'));
+            };
+        });
+        document.querySelectorAll('.drop-zone').forEach(zone => {
+            zone.ondragover = e => { e.preventDefault(); zone.classList.add('drag-over'); };
+            zone.ondragleave = e => zone.classList.remove('drag-over');
+            zone.ondrop = e => {
+                e.preventDefault();
+                zone.classList.remove('drag-over');
+                if(!draggedItem) return;
+                const targetType = zone.getAttribute('data-zone-type');
+                const targetSubject = zone.getAttribute('data-subject');
+                if(draggedItem.subjectKey !== targetSubject) {
+                    showToast('Нельзя перемещать между разными предметами', '#a13e3e');
+                    return;
+                }
+                if((draggedItem.sourceStatus === 'present' && targetType === 'present') || (draggedItem.sourceStatus === 'absent' && targetType === 'absent')) {
+                    showToast('Студент уже в этом списке', '#64748b');
+                    return;
+                }
+                const fullName = shortToFull.get(draggedItem.shortName);
+                if(!fullName) return;
+                const newStatus = targetType === 'present';
+                const student = attendanceRecords.find(s => s.fullName === fullName);
+                if(student && student[draggedItem.subjectKey] !== newStatus) {
+                    student[draggedItem.subjectKey] = newStatus;
+                    renderMainTable();
+                    renderDraggableSummaries();
+                    saveToLocalStorage();
+                    showToast(`${draggedItem.shortName} теперь ${newStatus ? 'присутствует' : 'отсутствует'}`, newStatus ? '#1f5e3a' : '#a13e3e');
+                }
+            };
+        });
+    }
+
+    function showToast(msg, bg) {
+        let t = document.createElement('div');
+        t.textContent = msg;
+        t.style.cssText = `position:fixed; bottom:20px; left:20px; right:20px; background:${bg}; color:white; padding:12px 20px; border-radius:60px; font-size:0.8rem; z-index:1000; text-align:center; box-shadow:0 4px 12px rgba(0,0,0,0.2);`;
+        document.body.appendChild(t);
+        setTimeout(() => t.remove(), 2000);
+    }
+
+    function bindInlineButtons() {
+        document.querySelectorAll('.icon-btn.add').forEach(btn => {
+            btn.onclick = () => setAttendanceStatus(btn.getAttribute('data-fullname'), btn.getAttribute('data-subject'), true);
+        });
+        document.querySelectorAll('.icon-btn.remove').forEach(btn => {
+            btn.onclick = () => setAttendanceStatus(btn.getAttribute('data-fullname'), btn.getAttribute('data-subject'), false);
+        });
+    }
+
+    function resetAll() {
+        if(confirm('Сбросить все отметки по всем трём парам?')) {
+            attendanceRecords.forEach(s => { s.literature = false; s.mathematics = false; s.language = false; });
+            renderMainTable();
+            renderDraggableSummaries();
+            saveToLocalStorage();
+            showToast('✨ Вся посещаемость сброшена', '#2c3e5c');
+        }
+    }
+    function clearAllSavedData() {
+        if(confirm('Очистить ВСЕ сохранённые данные? Это удалит все отметки.')) {
+            localStorage.removeItem(STORAGE_KEY);
+            attendanceRecords = FULL_STUDENT_LIST.map(n => ({ fullName: n, literature: false, mathematics: false, language: false }));
+            renderMainTable();
+            renderDraggableSummaries();
+            saveToLocalStorage();
+            showToast('🗑 Данные очищены', '#8b3c3c');
+        }
+    }
+
+    function findFullByInput(input) {
+        let t = input.trim();
+        if(shortToFull.has(t)) return shortToFull.get(t);
+        let lower = t.toLowerCase();
+        let match = SHORT_NAMES_LIST.find(n => n.toLowerCase() === lower);
+        if(match) return shortToFull.get(match);
+        let partial = SHORT_NAMES_LIST.filter(n => n.toLowerCase().includes(lower));
+        return partial.length === 1 ? shortToFull.get(partial[0]) : null;
+    }
+
+    function initPanelControls() {
+        const presentBtn = document.getElementById('markPresentBtn');
+        const absentBtn = document.getElementById('markAbsentBtn');
+        const nameInput = document.getElementById('studentNameField');
+        const subjectSelect = document.getElementById('subjectPairSelect');
+        presentBtn.onclick = () => {
+            let raw = nameInput.value.trim();
+            if(!raw) { alert('Введите фамилию и имя'); return; }
+            let full = findFullByInput(raw);
+            if(!full) { alert(`Студент "${raw}" не найден`); return; }
+            setAttendanceStatus(full, subjectSelect.value, true);
+            nameInput.value = getShortName(full);
+        };
+        absentBtn.onclick = () => {
+            let raw = nameInput.value.trim();
+            if(!raw) { alert('Введите фамилию и имя'); return; }
+            let full = findFullByInput(raw);
+            if(!full) { alert(`Студент "${raw}" не найден`); return; }
+            setAttendanceStatus(full, subjectSelect.value, false);
+            nameInput.value = getShortName(full);
+        };
+    }
+
+    function populateDatalist() {
+        let dl = document.getElementById('studentsDatalist');
+        if(dl) {
+            dl.innerHTML = '';
+            SHORT_NAMES_LIST.forEach(n => {
+                let opt = document.createElement('option');
+                opt.value = n;
+                dl.appendChild(opt);
+            });
+        }
+    }
+
+    function escapeHtml(str) {
+        return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
+    }
+
+    function init() {
+        initData();
+        populateDatalist();
+        renderMainTable();
+        renderDraggableSummaries();
+        initPanelControls();
+        document.getElementById('globalResetBtn').addEventListener('click', resetAll);
+        document.getElementById('clearStorageBtn').addEventListener('click', clearAllSavedData);
+    }
     document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
