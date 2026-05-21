@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Учет посещаемости | Журнал</title>
+    <title>Журнал посещаемости</title>
     <style>
         * {
             box-sizing: border-box;
@@ -33,7 +33,6 @@
         }
         .journal-header h1 {
             margin: 0;
-            font-weight: 650;
             font-size: 1.7rem;
         }
         .journal-header p {
@@ -93,7 +92,6 @@
         }
         .mark-btn:hover {
             transform: scale(0.97);
-            opacity: 0.9;
         }
         .mark-btn.remove-mode {
             background: #8b3c3c;
@@ -104,7 +102,6 @@
             border-bottom: 1px solid #e4e9f0;
             display: flex;
             justify-content: flex-end;
-            flex-wrap: wrap;
             gap: 16px;
         }
         .reset-btn, .clear-storage-btn {
@@ -115,7 +112,6 @@
             font-weight: 500;
             font-size: 0.85rem;
             cursor: pointer;
-            color: #1e293b;
         }
         .clear-storage-btn {
             background: #fff1f0;
@@ -127,7 +123,6 @@
             flex-wrap: wrap;
             gap: 24px;
             padding: 1.8rem 2rem;
-            background: #ffffff;
         }
         .left-grid {
             flex: 2;
@@ -146,7 +141,6 @@
             border-collapse: collapse;
             font-size: 0.85rem;
             min-width: 680px;
-            background: white;
         }
         .attend-table th {
             background: #f8fafc;
@@ -218,28 +212,17 @@
             font-weight: 600;
             cursor: pointer;
         }
-        .icon-btn.add {
-            background: #e6f7e6;
-            border-color: #b2d8a8;
-            color: #2b6e2f;
-        }
-        .icon-btn.remove {
-            background: #ffe6e5;
-            border-color: #fbc4c1;
-            color: #b13e3e;
-        }
+        .icon-btn.add { background: #e6f7e6; color: #2b6e2f; }
+        .icon-btn.remove { background: #ffe6e5; color: #b13e3e; }
         .summary-card {
             background: #fefefe;
             border-radius: 24px;
             border: 1px solid #e9edf2;
-            overflow: hidden;
         }
         .card-header {
             background: #f1f5f9;
             padding: 12px 18px;
             font-weight: 700;
-            font-size: 1rem;
-            border-bottom: 1px solid #e2e8f0;
             display: flex;
             justify-content: space-between;
         }
@@ -249,21 +232,9 @@
             padding: 2px 10px;
             font-size: 0.7rem;
         }
-        .split-lists {
-            padding: 12px 16px;
-        }
-        .present-title {
-            color: #15803d;
-            font-weight: 600;
-            font-size: 0.7rem;
-            margin-bottom: 8px;
-        }
-        .absent-title {
-            color: #b91c1c;
-            font-weight: 600;
-            font-size: 0.7rem;
-            margin-bottom: 8px;
-        }
+        .split-lists { padding: 12px 16px; }
+        .present-title { color: #15803d; font-weight: 600; font-size: 0.7rem; margin-bottom: 8px; }
+        .absent-title { color: #b91c1c; font-weight: 600; font-size: 0.7rem; margin-bottom: 8px; }
         .student-tag {
             background: #f8fafc;
             padding: 4px 12px;
@@ -274,17 +245,9 @@
             border: 1px solid #cbd5e1;
             cursor: grab;
         }
-        .student-tag:active {
-            cursor: grabbing;
-        }
-        .drop-zone {
-            min-height: 60px;
-            border-radius: 16px;
-            padding: 4px 0;
-        }
-        .drop-zone.drag-over {
-            background: #eef2ff;
-        }
+        .student-tag:active { cursor: grabbing; }
+        .drop-zone { min-height: 60px; border-radius: 16px; padding: 4px 0; }
+        .drop-zone.drag-over { background: #eef2ff; }
         .legend-bottom {
             display: flex;
             gap: 24px;
@@ -295,18 +258,16 @@
             border-top: 1px solid #e4e9f0;
             font-size: 0.8rem;
         }
-        @media (max-width: 900px) {
-            .two-columns { flex-direction: column; }
-        }
+        .empty-message { color: #94a3b8; padding: 8px 0; font-style: italic; font-size: 0.7rem; }
+        @media (max-width: 900px) { .two-columns { flex-direction: column; } }
     </style>
 </head>
 <body>
 <div class="main-dashboard">
     <div class="journal-header">
         <h1>📋 Журнал посещаемости</h1>
-        <p>Фамилия + Имя · Перетаскивайте студентов · <strong>Данные автоматически сохраняются</strong></p>
+        <p>Перетаскивайте студентов · <strong>Автосохранение в браузере</strong></p>
     </div>
-
     <div class="top-control-panel">
         <div class="mark-card">
             <div class="flex-row">
@@ -330,30 +291,26 @@
             </div>
         </div>
     </div>
-
     <div class="action-bar">
         <button class="reset-btn" id="globalResetBtn">⟳ Сбросить все отметки</button>
         <button class="clear-storage-btn" id="clearStorageBtn">🗑 Очистить сохранённые данные</button>
     </div>
-
     <div class="two-columns">
         <div class="left-grid">
             <table class="attend-table" id="mainTable">
-                <thead><tr><th>👥 Студент</th><th id="litHeader"><div class="subject-header"><div class="subject-name">📖 Литература</div><div class="subject-stats" id="litStatBadge">0/20</div></div></th><th id="mathHeader"><div class="subject-header"><div class="subject-name">📐 Математика</div><div class="subject-stats" id="mathStatBadge">0/20</div></div></th><th id="langHeader"><div class="subject-header"><div class="subject-name">🌍 Иностранный язык</div><div class="subject-stats" id="langStatBadge">0/20</div></div></th></tr></thead>
+                <thead><tr><th>👥 Студент</th><th><div class="subject-header"><div class="subject-name">📖 Литература</div><div class="subject-stats" id="litStatBadge">0/20</div></div></th><th><div class="subject-header"><div class="subject-name">📐 Математика</div><div class="subject-stats" id="mathStatBadge">0/20</div></div></th><th><div class="subject-header"><div class="subject-name">🌍 Иностранный язык</div><div class="subject-stats" id="langStatBadge">0/20</div></div></th></tr></thead>
                 <tbody id="tableDynamicBody"></tbody>
             </table>
         </div>
         <div class="right-summary" id="summaryContainer"></div>
     </div>
-
     <div class="legend-bottom">
         <span>🟢 Присутствовал(а)</span>
         <span>🔴 Отсутствовал(а)</span>
         <span>🖱️ Перетащите имя между списками</span>
-        <span>💾 Автосохранение в браузере</span>
+        <span>💾 Всё сохраняется автоматически</span>
     </div>
 </div>
-
 <script>
     const FULL_STUDENT_LIST = [
         "Аношин Михаил Александрович","Богданович Андрей Сергеевич","Бодров Максим Вячеславович",
@@ -364,140 +321,28 @@
         "Семянченков Руслан Ихтиёрович","Хохлов Егор Андреевич","Цаплин Иван Николаевич",
         "Шалагин Артём Алексеевич","Яничев Егор Андреевич"
     ];
-
     function getShortName(full) { let p = full.trim().split(/\s+/); return (p.length>=2) ? `${p[0]} ${p[1]}` : full; }
     const shortToFull = new Map(); FULL_STUDENT_LIST.forEach(full => shortToFull.set(getShortName(full), full));
     const SHORT_NAMES_LIST = FULL_STUDENT_LIST.map(full => getShortName(full));
-
     let attendanceRecords = [];
     const STORAGE_KEY = 'attendanceRecords_v1';
-
-    function saveToLocalStorage() {
-        try {
-            const toSave = attendanceRecords.map(r => ({ fullName: r.fullName, literature: r.literature, mathematics: r.mathematics, language: r.language }));
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
-        } catch(e) {}
-    }
-
-    function loadFromLocalStorage() {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        if (!saved) return null;
-        try {
-            const parsed = JSON.parse(saved);
-            if (Array.isArray(parsed) && parsed.length === FULL_STUDENT_LIST.length) {
-                let valid = true;
-                for (let i = 0; i < FULL_STUDENT_LIST.length; i++) {
-                    if (parsed[i].fullName !== FULL_STUDENT_LIST[i]) { valid = false; break; }
-                }
-                if (valid) return parsed;
-            }
-            return null;
-        } catch(e) { return null; }
-    }
-
-    function initData() {
-        const saved = loadFromLocalStorage();
-        if (saved) attendanceRecords = saved;
-        else attendanceRecords = FULL_STUDENT_LIST.map(fullName => ({ fullName, literature: false, mathematics: false, language: false }));
-    }
-
-    function updateHeaderStats() {
-        let lit=0, math=0, lang=0;
-        for(let s of attendanceRecords) { if(s.literature) lit++; if(s.mathematics) math++; if(s.language) lang++; }
-        document.getElementById('litStatBadge').innerText = `${lit}/20`;
-        document.getElementById('mathStatBadge').innerText = `${math}/20`;
-        document.getElementById('langStatBadge').innerText = `${lang}/20`;
-    }
-
-    function renderMainTable() {
-        const tbody = document.getElementById('tableDynamicBody');
-        if(!tbody) return;
-        tbody.innerHTML = '';
-        for(const student of attendanceRecords) {
-            const row = tbody.insertRow();
-            row.insertCell(0).innerHTML = `<span class="student-fullname">${escapeHtml(getShortName(student.fullName))}</span>`;
-            row.insertCell(1).innerHTML = renderSubjectCell(student.fullName, 'literature', student.literature);
-            row.insertCell(2).innerHTML = renderSubjectCell(student.fullName, 'mathematics', student.mathematics);
-            row.insertCell(3).innerHTML = renderSubjectCell(student.fullName, 'language', student.language);
-        }
-        updateHeaderStats();
-        bindInlineButtons();
-    }
-
-    function renderSubjectCell(fullName, subjectKey, isPresent) {
-        const statusText = isPresent ? 'Присутствовал(а)' : 'Отсутствовал(а)';
-        const badgeClass = isPresent ? 'badge-present' : 'badge-absent';
-        return `<div style="text-align:center"><div class="${badgeClass}">${statusText}</div>
-                <div class="action-icons"><button class="icon-btn add" data-fullname="${escapeHtml(fullName)}" data-subject="${subjectKey}">➕</button>
-                <button class="icon-btn remove" data-fullname="${escapeHtml(fullName)}" data-subject="${subjectKey}">➖</button></div></div>`;
-    }
-
-    function setAttendanceStatus(fullName, subjectKey, isPresent) {
-        const student = attendanceRecords.find(s => s.fullName === fullName);
-        if(!student || student[subjectKey] === isPresent) return false;
-        student[subjectKey] = isPresent;
-        renderMainTable();
-        renderDraggableSummaries();
-        saveToLocalStorage();
-        return true;
-    }
-
-    function renderDraggableSummaries() {
-        const container = document.getElementById('summaryContainer');
-        if(!container) return;
-        const subjects = [{ key: 'literature', title: '📖 Литература' }, { key: 'mathematics', title: '📐 Математика' }, { key: 'language', title: '🌍 Иностранный язык' }];
-        let html = '';
-        for(let sub of subjects) {
-            const present = [], absent = [];
-            for(let s of attendanceRecords) {
-                const short = getShortName(s.fullName);
-                if(s[sub.key]) present.push(short);
-                else absent.push(short);
-            }
-            html += `<div class="summary-card" data-subject="${sub.key}"><div class="card-header"><span>${sub.title}</span><span class="counter">${present.length}/20</span></div>
-                    <div class="split-lists"><div class="present-block"><div class="present-title">✅ ПРИСУТСТВОВАЛ(А)</div><div class="drop-zone" data-zone-type="present" data-subject="${sub.key}">${present.length===0?'<div class="empty-message">— перетащите сюда —</div>':present.map(n=>`<span class="student-tag" draggable="true" data-name="${escapeHtml(n)}" data-subject="${sub.key}" data-status="present">${escapeHtml(n)}</span>`).join('')}</div></div>
-                    <div class="absent-block"><div class="absent-title">❌ ОТСУТСТВОВАЛ(А)</div><div class="drop-zone" data-zone-type="absent" data-subject="${sub.key}">${absent.length===0?'<div class="empty-message">— перетащите сюда —</div>':absent.map(n=>`<span class="student-tag" draggable="true" data-name="${escapeHtml(n)}" data-subject="${sub.key}" data-status="absent">${escapeHtml(n)}</span>`).join('')}</div></div></div></div>`;
-        }
-        container.innerHTML = html;
-        attachDragAndDropEvents();
-    }
-
-    let draggedItem = null;
-    function attachDragAndDropEvents() {
-        document.querySelectorAll('.student-tag').forEach(el => {
-            el.setAttribute('draggable', 'true');
-            el.ondragstart = e => { draggedItem = { shortName: el.getAttribute('data-name'), subjectKey: el.getAttribute('data-subject'), sourceStatus: el.getAttribute('data-status') }; e.dataTransfer.setData('text/plain', draggedItem.shortName); el.style.opacity = '0.5'; };
-            el.ondragend = e => { el.style.opacity = ''; draggedItem = null; document.querySelectorAll('.drop-zone').forEach(z => z.classList.remove('drag-over')); };
-        });
-        document.querySelectorAll('.drop-zone').forEach(zone => {
-            zone.ondragover = e => { e.preventDefault(); zone.classList.add('drag-over'); };
-            zone.ondragleave = e => zone.classList.remove('drag-over');
-            zone.ondrop = e => {
-                e.preventDefault(); zone.classList.remove('drag-over');
-                if(!draggedItem) return;
-                const targetType = zone.getAttribute('data-zone-type'), targetSubject = zone.getAttribute('data-subject');
-                if(draggedItem.subjectKey !== targetSubject) { showToast('Нельзя перемещать между разными предметами', '#a13e3e'); return; }
-                if((draggedItem.sourceStatus === 'present' && targetType === 'present') || (draggedItem.sourceStatus === 'absent' && targetType === 'absent')) { showToast('Студент уже в этом списке', '#64748b'); return; }
-                const fullName = shortToFull.get(draggedItem.shortName);
-                if(!fullName) return;
-                const newStatus = targetType === 'present';
-                const student = attendanceRecords.find(s => s.fullName === fullName);
-                if(student && student[draggedItem.subjectKey] !== newStatus) {
-                    student[draggedItem.subjectKey] = newStatus;
-                    renderMainTable(); renderDraggableSummaries(); saveToLocalStorage();
-                    showToast(`${draggedItem.shortName} теперь ${newStatus ? 'присутствует' : 'отсутствует'}`, newStatus ? '#1f5e3a' : '#a13e3e');
-                }
-            };
-        });
-    }
-
-    function showToast(msg, bg) { let t=document.createElement('div'); t.textContent=msg; t.style.cssText=`position:fixed; bottom:20px; left:20px; background:${bg}; color:white; padding:8px 20px; border-radius:40px; font-size:0.8rem; z-index:999;`; document.body.appendChild(t); setTimeout(()=>t.remove(),1800); }
-    function bindInlineButtons() { document.querySelectorAll('.icon-btn.add').forEach(btn=>{ btn.onclick = () => setAttendanceStatus(btn.getAttribute('data-fullname'), btn.getAttribute('data-subject'), true); }); document.querySelectorAll('.icon-btn.remove').forEach(btn=>{ btn.onclick = () => setAttendanceStatus(btn.getAttribute('data-fullname'), btn.getAttribute('data-subject'), false); }); }
-    function resetAll() { if(confirm('Сбросить все отметки?')) { attendanceRecords.forEach(s=>{ s.literature=false; s.mathematics=false; s.language=false; }); renderMainTable(); renderDraggableSummaries(); saveToLocalStorage(); showToast('✨ Вся посещаемость сброшена','#2c3e5c'); } }
-    function clearAllSavedData() { if(confirm('Очистить сохранённые данные?')) { localStorage.removeItem(STORAGE_KEY); attendanceRecords = FULL_STUDENT_LIST.map(n=>({fullName:n, literature:false, mathematics:false, language:false})); renderMainTable(); renderDraggableSummaries(); saveToLocalStorage(); showToast('🗑 Данные очищены','#8b3c3c'); } }
-    function findFullByInput(input) { let t=input.trim(); if(shortToFull.has(t)) return shortToFull.get(t); let lower=t.toLowerCase(), match=SHORT_NAMES_LIST.find(n=>n.toLowerCase()===lower); if(match) return shortToFull.get(match); let partial=SHORT_NAMES_LIST.filter(n=>n.toLowerCase().includes(lower)); return partial.length===1? shortToFull.get(partial[0]):null; }
-    function initPanelControls() { const presentBtn=document.getElementById('markPresentBtn'), absentBtn=document.getElementById('markAbsentBtn'), nameInput=document.getElementById('studentNameField'), subjectSelect=document.getElementById('subjectPairSelect'); presentBtn.onclick=()=>{ let raw=nameInput.value.trim(); if(!raw){alert('Введите фамилию и имя');return;} let full=findFullByInput(raw); if(!full){alert('Студент не найден');return;} setAttendanceStatus(full,subjectSelect.value,true); nameInput.value=getShortName(full); }; absentBtn.onclick=()=>{ let raw=nameInput.value.trim(); if(!raw){alert('Введите фамилию и имя');return;} let full=findFullByInput(raw); if(!full){alert('Студент не найден');return;} setAttendanceStatus(full,subjectSelect.value,false); nameInput.value=getShortName(full); }; }
-    function populateDatalist() { let dl=document.getElementById('studentsDatalist'); if(dl){ dl.innerHTML=''; SHORT_NAMES_LIST.forEach(n=>{ let opt=document.createElement('option'); opt.value=n; dl.appendChild(opt); }); } }
+    function saveToLocalStorage() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(attendanceRecords.map(r=>({fullName:r.fullName, literature:r.literature, mathematics:r.mathematics, language:r.language})))); } catch(e){} }
+    function loadFromLocalStorage() { let saved = localStorage.getItem(STORAGE_KEY); if(!saved) return null; try { let parsed = JSON.parse(saved); if(Array.isArray(parsed) && parsed.length===FULL_STUDENT_LIST.length) { let valid=true; for(let i=0;i<FULL_STUDENT_LIST.length;i++) if(parsed[i].fullName!==FULL_STUDENT_LIST[i]) { valid=false; break; } if(valid) return parsed; } return null; } catch(e){ return null; } }
+    function initData() { let saved=loadFromLocalStorage(); if(saved) attendanceRecords=saved; else attendanceRecords=FULL_STUDENT_LIST.map(fullName=>({fullName, literature:false, mathematics:false, language:false})); }
+    function updateHeaderStats() { let lit=0,math=0,lang=0; for(let s of attendanceRecords) { if(s.literature) lit++; if(s.mathematics) math++; if(s.language) lang++; } document.getElementById('litStatBadge').innerText=`${lit}/20`; document.getElementById('mathStatBadge').innerText=`${math}/20`; document.getElementById('langStatBadge').innerText=`${lang}/20`; }
+    function renderSubjectCell(fullName,subjectKey,isPresent) { let statusText=isPresent?'Присутствовал(а)':'Отсутствовал(а)'; let badgeClass=isPresent?'badge-present':'badge-absent'; return `<div style="text-align:center"><div class="${badgeClass}">${statusText}</div><div class="action-icons"><button class="icon-btn add" data-fullname="${escapeHtml(fullName)}" data-subject="${subjectKey}">➕</button><button class="icon-btn remove" data-fullname="${escapeHtml(fullName)}" data-subject="${subjectKey}">➖</button></div></div>`; }
+    function renderMainTable() { let tbody=document.getElementById('tableDynamicBody'); if(!tbody) return; tbody.innerHTML=''; for(let s of attendanceRecords) { let row=tbody.insertRow(); row.insertCell(0).innerHTML=`<span class="student-fullname">${escapeHtml(getShortName(s.fullName))}</span>`; row.insertCell(1).innerHTML=renderSubjectCell(s.fullName,'literature',s.literature); row.insertCell(2).innerHTML=renderSubjectCell(s.fullName,'mathematics',s.mathematics); row.insertCell(3).innerHTML=renderSubjectCell(s.fullName,'language',s.language); } updateHeaderStats(); bindInlineButtons(); }
+    function setAttendanceStatus(fullName,subjectKey,isPresent) { let student=attendanceRecords.find(s=>s.fullName===fullName); if(!student || student[subjectKey]===isPresent) return false; student[subjectKey]=isPresent; renderMainTable(); renderDraggableSummaries(); saveToLocalStorage(); return true; }
+    function renderDraggableSummaries() { let container=document.getElementById('summaryContainer'); if(!container) return; let subjects=[{key:'literature',title:'📖 Литература'},{key:'mathematics',title:'📐 Математика'},{key:'language',title:'🌍 Иностранный язык'}]; let html=''; for(let sub of subjects) { let present=[], absent=[]; for(let s of attendanceRecords) { let short=getShortName(s.fullName); if(s[sub.key]) present.push(short); else absent.push(short); } html+=`<div class="summary-card" data-subject="${sub.key}"><div class="card-header"><span>${sub.title}</span><span class="counter">${present.length}/20</span></div><div class="split-lists"><div class="present-block"><div class="present-title">✅ ПРИСУТСТВОВАЛ(А)</div><div class="drop-zone" data-zone-type="present" data-subject="${sub.key}">${present.length===0?'<div class="empty-message">— перетащите сюда —</div>':present.map(n=>`<span class="student-tag" draggable="true" data-name="${escapeHtml(n)}" data-subject="${sub.key}" data-status="present">${escapeHtml(n)}</span>`).join('')}</div></div><div class="absent-block"><div class="absent-title">❌ ОТСУТСТВОВАЛ(А)</div><div class="drop-zone" data-zone-type="absent" data-subject="${sub.key}">${absent.length===0?'<div class="empty-message">— перетащите сюда —</div>':absent.map(n=>`<span class="student-tag" draggable="true" data-name="${escapeHtml(n)}" data-subject="${sub.key}" data-status="absent">${escapeHtml(n)}</span>`).join('')}</div></div></div></div>`; } container.innerHTML=html; attachDragAndDropEvents(); }
+    let draggedItem=null;
+    function attachDragAndDropEvents() { document.querySelectorAll('.student-tag').forEach(el=>{ el.setAttribute('draggable','true'); el.ondragstart=e=>{ draggedItem={shortName:el.getAttribute('data-name'), subjectKey:el.getAttribute('data-subject'), sourceStatus:el.getAttribute('data-status')}; e.dataTransfer.setData('text/plain',draggedItem.shortName); el.style.opacity='0.5'; }; el.ondragend=e=>{ el.style.opacity=''; draggedItem=null; document.querySelectorAll('.drop-zone').forEach(z=>z.classList.remove('drag-over')); }; }); document.querySelectorAll('.drop-zone').forEach(zone=>{ zone.ondragover=e=>{ e.preventDefault(); zone.classList.add('drag-over'); }; zone.ondragleave=e=>zone.classList.remove('drag-over'); zone.ondrop=e=>{ e.preventDefault(); zone.classList.remove('drag-over'); if(!draggedItem) return; let targetType=zone.getAttribute('data-zone-type'), targetSubject=zone.getAttribute('data-subject'); if(draggedItem.subjectKey!==targetSubject){ showToast('Нельзя перемещать между разными предметами','#a13e3e'); return; } if((draggedItem.sourceStatus==='present' && targetType==='present')||(draggedItem.sourceStatus==='absent' && targetType==='absent')){ showToast('Студент уже в этом списке','#64748b'); return; } let fullName=shortToFull.get(draggedItem.shortName); if(!fullName) return; let newStatus=targetType==='present'; let student=attendanceRecords.find(s=>s.fullName===fullName); if(student && student[draggedItem.subjectKey]!==newStatus){ student[draggedItem.subjectKey]=newStatus; renderMainTable(); renderDraggableSummaries(); saveToLocalStorage(); showToast(`${draggedItem.shortName} теперь ${newStatus?'присутствует':'отсутствует'}`,newStatus?'#1f5e3a':'#a13e3e'); } }; }); }
+    function showToast(msg,bg){ let t=document.createElement('div'); t.textContent=msg; t.style.cssText=`position:fixed; bottom:20px; left:20px; background:${bg}; color:white; padding:8px 20px; border-radius:40px; font-size:0.8rem; z-index:999;`; document.body.appendChild(t); setTimeout(()=>t.remove(),1800); }
+    function bindInlineButtons(){ document.querySelectorAll('.icon-btn.add').forEach(btn=>{ btn.onclick=()=>setAttendanceStatus(btn.getAttribute('data-fullname'),btn.getAttribute('data-subject'),true); }); document.querySelectorAll('.icon-btn.remove').forEach(btn=>{ btn.onclick=()=>setAttendanceStatus(btn.getAttribute('data-fullname'),btn.getAttribute('data-subject'),false); }); }
+    function resetAll(){ if(confirm('Сбросить все отметки?')){ attendanceRecords.forEach(s=>{ s.literature=false; s.mathematics=false; s.language=false; }); renderMainTable(); renderDraggableSummaries(); saveToLocalStorage(); showToast('✨ Вся посещаемость сброшена','#2c3e5c'); } }
+    function clearAllSavedData(){ if(confirm('Очистить сохранённые данные?')){ localStorage.removeItem(STORAGE_KEY); attendanceRecords=FULL_STUDENT_LIST.map(n=>({fullName:n, literature:false, mathematics:false, language:false})); renderMainTable(); renderDraggableSummaries(); saveToLocalStorage(); showToast('🗑 Данные очищены','#8b3c3c'); } }
+    function findFullByInput(input){ let t=input.trim(); if(shortToFull.has(t)) return shortToFull.get(t); let lower=t.toLowerCase(), match=SHORT_NAMES_LIST.find(n=>n.toLowerCase()===lower); if(match) return shortToFull.get(match); let partial=SHORT_NAMES_LIST.filter(n=>n.toLowerCase().includes(lower)); return partial.length===1? shortToFull.get(partial[0]):null; }
+    function initPanelControls(){ let presentBtn=document.getElementById('markPresentBtn'), absentBtn=document.getElementById('markAbsentBtn'), nameInput=document.getElementById('studentNameField'), subjectSelect=document.getElementById('subjectPairSelect'); presentBtn.onclick=()=>{ let raw=nameInput.value.trim(); if(!raw){alert('Введите фамилию и имя');return;} let full=findFullByInput(raw); if(!full){alert('Студент не найден');return;} setAttendanceStatus(full,subjectSelect.value,true); nameInput.value=getShortName(full); }; absentBtn.onclick=()=>{ let raw=nameInput.value.trim(); if(!raw){alert('Введите фамилию и имя');return;} let full=findFullByInput(raw); if(!full){alert('Студент не найден');return;} setAttendanceStatus(full,subjectSelect.value,false); nameInput.value=getShortName(full); }; }
+    function populateDatalist(){ let dl=document.getElementById('studentsDatalist'); if(dl){ dl.innerHTML=''; SHORT_NAMES_LIST.forEach(n=>{ let opt=document.createElement('option'); opt.value=n; dl.appendChild(opt); }); } }
     function escapeHtml(str){ return str.replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
     function init(){ initData(); populateDatalist(); renderMainTable(); renderDraggableSummaries(); initPanelControls(); document.getElementById('globalResetBtn').onclick=resetAll; document.getElementById('clearStorageBtn').onclick=clearAllSavedData; }
     document.addEventListener('DOMContentLoaded', init);
