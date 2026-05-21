@@ -137,7 +137,6 @@
             width: 100%;
         }
 
-        /* ТАБЛИЦА — мобильная карточка */
         .attend-table {
             display: block;
             width: 100%;
@@ -213,7 +212,6 @@
         .icon-btn.add { background: #e6f7e6; color: #2b6e2f; }
         .icon-btn.remove { background: #ffe6e5; color: #b13e3e; }
 
-        /* Сводки */
         .summary-card {
             background: #fefefe;
             border-radius: 24px;
@@ -283,7 +281,6 @@
             font-size: 0.7rem;
         }
 
-        /* Планшеты и десктоп */
         @media (min-width: 768px) {
             body { padding: 24px; }
             .flex-row { flex-direction: row; align-items: flex-end; }
@@ -368,7 +365,6 @@
 </div>
 
 <script>
-    // ---------- СПИСОК СТУДЕНТОВ ----------
     const FULL_STUDENT_LIST = [
         "Аношин Михаил Александрович","Богданович Андрей Сергеевич","Бодров Максим Вячеславович",
         "Викторов Александр Дмитриевич","Гневанов Арсений Данилович","Громов Денис Алексеевич",
@@ -384,7 +380,7 @@
     const SHORT_NAMES_LIST = FULL_STUDENT_LIST.map(full => getShortName(full));
 
     let attendanceRecords = [];
-    const STORAGE_KEY = 'attendanceRecords_paras_tap_v2';
+    const STORAGE_KEY = 'attendanceRecords_paras_tap_v3';
 
     function saveToLocalStorage() {
         try {
@@ -474,11 +470,15 @@
         return true;
     }
 
-    // Глобальная функция для тапа/клика по имени (перемещение между списками одним нажатием)
+    let lastTapTime = 0;
     window.handleTagClick = function(tagElement) {
+        const now = Date.now();
+        if (now - lastTapTime < 300) return;
+        lastTapTime = now;
+
         const shortName = tagElement.getAttribute('data-name');
         const subjectKey = tagElement.getAttribute('data-subject');
-        const currentStatus = tagElement.getAttribute('data-status'); // 'present' или 'absent'
+        const currentStatus = tagElement.getAttribute('data-status');
         if (!shortName || !subjectKey) return;
 
         const newStatus = currentStatus === 'present' ? false : true;
@@ -495,7 +495,6 @@
         }
     };
 
-    // Сводные карточки с поддержкой клика и перетаскивания
     function renderDraggableSummaries() {
         const container = document.getElementById('summaryContainer');
         if(!container) return;
@@ -521,13 +520,13 @@
                             <div class="present-block">
                                 <div class="present-title">✅ ПРИСУТСТВОВАЛ(А)</div>
                                 <div class="drop-zone" data-zone-type="present" data-subject="${sub.key}">
-                                    ${present.length===0 ? '<div class="empty-message">— перетащите или нажмите —</div>' : present.map(n => `<span class="student-tag" draggable="true" data-name="${escapeHtml(n)}" data-subject="${sub.key}" data-status="present" onclick="window.handleTagClick(this)" ontouchstart="window.handleTagClick(this)">${escapeHtml(n)}</span>`).join('')}
+                                    ${present.length===0 ? '<div class="empty-message">— перетащите или нажмите —</div>' : present.map(n => `<span class="student-tag" draggable="true" data-name="${escapeHtml(n)}" data-subject="${sub.key}" data-status="present" onclick="window.handleTagClick(this)">${escapeHtml(n)}</span>`).join('')}
                                 </div>
                             </div>
                             <div class="absent-block">
                                 <div class="absent-title">❌ ОТСУТСТВОВАЛ(А)</div>
                                 <div class="drop-zone" data-zone-type="absent" data-subject="${sub.key}">
-                                    ${absent.length===0 ? '<div class="empty-message">— перетащите или нажмите —</div>' : absent.map(n => `<span class="student-tag" draggable="true" data-name="${escapeHtml(n)}" data-subject="${sub.key}" data-status="absent" onclick="window.handleTagClick(this)" ontouchstart="window.handleTagClick(this)">${escapeHtml(n)}</span>`).join('')}
+                                    ${absent.length===0 ? '<div class="empty-message">— перетащите или нажмите —</div>' : absent.map(n => `<span class="student-tag" draggable="true" data-name="${escapeHtml(n)}" data-subject="${sub.key}" data-status="absent" onclick="window.handleTagClick(this)">${escapeHtml(n)}</span>`).join('')}
                                 </div>
                             </div>
                         </div>
