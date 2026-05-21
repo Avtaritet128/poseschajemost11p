@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>Журнал посещаемости | Пары 1,2,3 + Drag & Drop</title>
+    <title>Журнал посещаемости | Нажми на имя — измени статус</title>
     <style>
         * {
             box-sizing: border-box;
@@ -246,15 +246,17 @@
         .absent-title { color: #b91c1c; }
         .student-tag {
             background: #f8fafc;
-            padding: 6px 14px;
+            padding: 8px 14px;
             border-radius: 40px;
-            font-size: 0.75rem;
-            margin: 4px 6px 4px 0;
+            font-size: 0.8rem;
+            margin: 5px 8px 5px 0;
             display: inline-block;
             border: 1px solid #cbd5e1;
-            cursor: grab;
+            cursor: pointer;
+            transition: 0.1s;
+            touch-action: manipulation;
         }
-        .student-tag:active { cursor: grabbing; }
+        .student-tag:active { transform: scale(0.96); background: #e2e8f0; }
         .drop-zone {
             min-height: 70px;
             border-radius: 20px;
@@ -360,7 +362,7 @@
     <div class="legend-bottom">
         <span>🟢 Присутствовал(а)</span>
         <span>🔴 Отсутствовал(а)</span>
-        <span>🖱️ Перетащите имя между списками</span>
+        <span>🖱️ Нажмите на имя — измените статус</span>
         <span>💾 Автосохранение</span>
     </div>
 </div>
@@ -382,7 +384,7 @@
     const SHORT_NAMES_LIST = FULL_STUDENT_LIST.map(full => getShortName(full));
 
     let attendanceRecords = [];
-    const STORAGE_KEY = 'attendanceRecords_paras_v2';
+    const STORAGE_KEY = 'attendanceRecords_paras_tap_v2';
 
     function saveToLocalStorage() {
         try {
@@ -422,7 +424,6 @@
         if(langEl) langEl.innerText = `${lang}/20`;
     }
 
-    // Рендер ячейки с подписью пары
     function renderSubjectCell(fullName, subjectKey, isPresent, subjectLabel) {
         const statusText = isPresent ? 'Присутствовал(а)' : 'Отсутствовал(а)';
         const badgeClass = isPresent ? 'badge-present' : 'badge-absent';
@@ -473,7 +474,28 @@
         return true;
     }
 
-    // Сводные карточки с подписями пар
+    // Глобальная функция для тапа/клика по имени (перемещение между списками одним нажатием)
+    window.handleTagClick = function(tagElement) {
+        const shortName = tagElement.getAttribute('data-name');
+        const subjectKey = tagElement.getAttribute('data-subject');
+        const currentStatus = tagElement.getAttribute('data-status'); // 'present' или 'absent'
+        if (!shortName || !subjectKey) return;
+
+        const newStatus = currentStatus === 'present' ? false : true;
+        const fullName = shortToFull.get(shortName);
+        if (!fullName) return;
+
+        const student = attendanceRecords.find(s => s.fullName === fullName);
+        if (student && student[subjectKey] !== newStatus) {
+            student[subjectKey] = newStatus;
+            renderMainTable();
+            renderDraggableSummaries();
+            saveToLocalStorage();
+            showToast(`${shortName} → ${newStatus ? 'присутствует' : 'отсутствует'}`, newStatus ? '#1f5e3a' : '#a13e3e');
+        }
+    };
+
+    // Сводные карточки с поддержкой клика и перетаскивания
     function renderDraggableSummaries() {
         const container = document.getElementById('summaryContainer');
         if(!container) return;
@@ -499,13 +521,13 @@
                             <div class="present-block">
                                 <div class="present-title">✅ ПРИСУТСТВОВАЛ(А)</div>
                                 <div class="drop-zone" data-zone-type="present" data-subject="${sub.key}">
-                                    ${present.length===0 ? '<div class="empty-message">— перетащите сюда —</div>' : present.map(n => `<span class="student-tag" draggable="true" data-name="${escapeHtml(n)}" data-subject="${sub.key}" data-status="present">${escapeHtml(n)}</span>`).join('')}
+                                    ${present.length===0 ? '<div class="empty-message">— перетащите или нажмите —</div>' : present.map(n => `<span class="student-tag" draggable="true" data-name="${escapeHtml(n)}" data-subject="${sub.key}" data-status="present" onclick="window.handleTagClick(this)" ontouchstart="window.handleTagClick(this)">${escapeHtml(n)}</span>`).join('')}
                                 </div>
                             </div>
                             <div class="absent-block">
                                 <div class="absent-title">❌ ОТСУТСТВОВАЛ(А)</div>
                                 <div class="drop-zone" data-zone-type="absent" data-subject="${sub.key}">
-                                    ${absent.length===0 ? '<div class="empty-message">— перетащите сюда —</div>' : absent.map(n => `<span class="student-tag" draggable="true" data-name="${escapeHtml(n)}" data-subject="${sub.key}" data-status="absent">${escapeHtml(n)}</span>`).join('')}
+                                    ${absent.length===0 ? '<div class="empty-message">— перетащите или нажмите —</div>' : absent.map(n => `<span class="student-tag" draggable="true" data-name="${escapeHtml(n)}" data-subject="${sub.key}" data-status="absent" onclick="window.handleTagClick(this)" ontouchstart="window.handleTagClick(this)">${escapeHtml(n)}</span>`).join('')}
                                 </div>
                             </div>
                         </div>
