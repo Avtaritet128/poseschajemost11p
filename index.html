@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>Журнал посещаемости | Нажми на имя — измени статус</title>
+    <title>Журнал посещаемости | Дата отображается в сводке</title>
     <style>
         * {
             box-sizing: border-box;
@@ -21,7 +21,7 @@
         }
 
         .main-dashboard {
-            max-width: 1400px;
+            max-width: 1800px;
             width: 100%;
             background: white;
             border-radius: 32px;
@@ -43,6 +43,35 @@
             margin: 0.4rem 0 0;
             opacity: 0.8;
             font-size: 0.8rem;
+        }
+
+        .weekdays-bar {
+            background: #f8fafc;
+            padding: 0.8rem 1.2rem;
+            border-bottom: 1px solid #e4e9f0;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .day-btn {
+            background: #f1f5f9;
+            border: 1px solid #cbd5e6;
+            padding: 8px 20px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: 0.2s;
+            color: #1e293b;
+        }
+        .day-btn.active {
+            background: #1f3b4c;
+            color: white;
+            border-color: #1f3b4c;
+        }
+        .day-btn:hover:not(.active) {
+            background: #e2e8f0;
         }
 
         .top-control-panel {
@@ -127,6 +156,68 @@
             color: #b13e3e;
         }
 
+        .unique-attendance-block {
+            background: #fef9e6;
+            border: 1px solid #ffe5b4;
+            border-radius: 28px;
+            padding: 1rem 1.2rem;
+            margin-bottom: 1.5rem;
+        }
+        .unique-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            flex-wrap: wrap;
+            margin-bottom: 0.8rem;
+            border-bottom: 2px solid #ffdd99;
+            padding-bottom: 6px;
+        }
+        .unique-header h3 {
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #8a6e2f;
+        }
+        .unique-date-badge {
+            font-size: 0.75rem;
+            background: #ffefcf;
+            padding: 4px 12px;
+            border-radius: 40px;
+            color: #a07c2e;
+        }
+        .unique-count {
+            background: #ffefcf;
+            padding: 4px 12px;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #a07c2e;
+        }
+        .unique-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            padding: 4px 0;
+        }
+        .unique-student-tag {
+            background: #fff5e0;
+            border: 1px solid #ffdb9e;
+            padding: 6px 14px;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #5e4a1e;
+        }
+        .empty-unique {
+            color: #b88b3a;
+            font-style: italic;
+            font-size: 0.8rem;
+            padding: 12px;
+            text-align: center;
+        }
+
         .two-columns {
             display: flex;
             flex-direction: column;
@@ -165,6 +256,7 @@
             justify-content: space-between;
             padding: 10px 0;
             border-bottom: 1px solid #edf2f7;
+            flex-wrap: wrap;
         }
         .attend-table td:last-child {
             border-bottom: none;
@@ -221,27 +313,84 @@
         .card-header {
             background: #f1f5f9;
             padding: 12px 16px;
-            font-weight: 700;
             display: flex;
             justify-content: space-between;
+            align-items: center;
             border-bottom: 1px solid #e2e8f0;
-            font-size: 0.9rem;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .title-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .title-section .title {
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: #1e4a76;
+            white-space: nowrap;
+        }
+        .title-section .subject-input {
+            padding: 6px 12px;
+            border-radius: 60px;
+            border: 1px solid #cbd5e1;
+            font-size: 0.85rem;
+            background: white;
+            width: 200px;
+            max-width: 100%;
+        }
+        .title-section .subject-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59,130,246,0.2);
+        }
+        .card-header .right-stats {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
         }
         .card-header .counter {
             background: white;
             border-radius: 40px;
             padding: 2px 12px;
             font-size: 0.7rem;
+            white-space: nowrap;
+        }
+        .card-header .date-input {
+            padding: 4px 12px;
+            border-radius: 60px;
+            border: 1px solid #cbd5e1;
+            font-size: 0.7rem;
+            background: white;
+            width: 110px;
+            text-align: center;
+        }
+        .card-header .date-input:focus {
+            outline: none;
+            border-color: #3b82f6;
         }
         .split-lists { padding: 12px; }
-        .present-block, .absent-block { margin-bottom: 16px; }
+        .present-block, .absent-block { margin-bottom: 20px; }
         .present-title, .absent-title {
             font-weight: 600;
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
-        .present-title { color: #15803d; }
-        .absent-title { color: #b91c1c; }
+        .present-title .count-badge, .absent-title .count-badge {
+            background: white;
+            border-radius: 40px;
+            padding: 2px 10px;
+            font-size: 0.65rem;
+            font-weight: 600;
+        }
+        .present-title .count-badge { color: #15803d; }
+        .absent-title .count-badge { color: #b91c1c; }
         .student-tag {
             background: #f8fafc;
             padding: 8px 14px;
@@ -252,7 +401,6 @@
             border: 1px solid #cbd5e1;
             cursor: pointer;
             transition: 0.1s;
-            touch-action: manipulation;
         }
         .student-tag:active { transform: scale(0.96); background: #e2e8f0; }
         .drop-zone {
@@ -270,6 +418,7 @@
             text-align: center;
             font-style: italic;
         }
+
         .legend-bottom {
             display: flex;
             flex-wrap: wrap;
@@ -300,6 +449,8 @@
             .mobile-subject-label { display: inline-block; }
             .attend-table td { flex-direction: column; align-items: flex-start; gap: 8px; }
             .attend-table td .action-icons { margin-left: 0; margin-top: 6px; }
+            .title-section .subject-input { width: 140px; }
+            .card-header .date-input { width: 90px; }
         }
     </style>
 </head>
@@ -307,7 +458,15 @@
 <div class="main-dashboard">
     <div class="journal-header">
         <h1>📋 Журнал посещаемости</h1>
-        <p>1 пара — Литература · 2 пара — Математика · 3 пара — Иностранный язык</p>
+        <p>Пн–Пт · 4 пары · Нажмите на имя для изменения статуса · Дата отображается в сводке</p>
+    </div>
+
+    <div class="weekdays-bar">
+        <button class="day-btn" data-day="mon">ПН</button>
+        <button class="day-btn" data-day="tue">ВТ</button>
+        <button class="day-btn" data-day="wed">СР</button>
+        <button class="day-btn" data-day="thu">ЧТ</button>
+        <button class="day-btn" data-day="fri">ПТ</button>
     </div>
 
     <div class="top-control-panel">
@@ -320,11 +479,7 @@
                 </div>
                 <div class="input-group">
                     <label>Предмет (пара)</label>
-                    <select id="subjectPairSelect">
-                        <option value="literature">📖 1 пара — Литература</option>
-                        <option value="mathematics">📐 2 пара — Математика</option>
-                        <option value="language">🌍 3 пара — Иностранный язык</option>
-                    </select>
+                    <select id="subjectPairSelect"></select>
                 </div>
                 <div class="double-buttons">
                     <button class="mark-btn" id="markPresentBtn">➕ Присутств.</button>
@@ -335,19 +490,21 @@
     </div>
 
     <div class="action-bar">
-        <button class="reset-btn" id="globalResetBtn">⟳ Сбросить всё</button>
-        <button class="clear-storage-btn" id="clearStorageBtn">🗑 Очистить данные</button>
+        <button class="reset-btn" id="globalResetBtn">⟳ Сбросить всё (текущий день)</button>
+        <button class="clear-storage-btn" id="clearStorageBtn">🗑 Очистить данные (все дни)</button>
     </div>
 
     <div class="two-columns">
         <div class="left-grid">
+            <div id="uniqueAttendanceBlock" class="unique-attendance-block"></div>
             <table class="attend-table" id="mainTable">
-                <thead>
-                    <tr>
+                <thead id="tableHeader">
+                    <tr id="headerRow">
                         <th>👥 Студент</th>
-                        <th>📖 1 пара — Литература <span id="litStatBadge" style="font-size:0.7rem; background:#e9edf2; padding:2px 8px; border-radius:40px; margin-left:6px;">0/20</span></th>
-                        <th>📐 2 пара — Математика <span id="mathStatBadge" style="font-size:0.7rem; background:#e9edf2; padding:2px 8px; border-radius:40px; margin-left:6px;">0/20</span></th>
-                        <th>🌍 3 пара — Иностранный <span id="langStatBadge" style="font-size:0.7rem; background:#e9edf2; padding:2px 8px; border-radius:40px; margin-left:6px;">0/20</span></th>
+                        <th id="header0">1 пара <span id="statBadge_0" style="margin-left:8px; font-size:0.65rem; background:#e9edf2; padding:2px 8px; border-radius:40px;">0/20</span></th>
+                        <th id="header1">2 пара <span id="statBadge_1" style="margin-left:8px; font-size:0.65rem; background:#e9edf2; padding:2px 8px; border-radius:40px;">0/20</span></th>
+                        <th id="header2">3 пара <span id="statBadge_2" style="margin-left:8px; font-size:0.65rem; background:#e9edf2; padding:2px 8px; border-radius:40px;">0/20</span></th>
+                        <th id="header3">4 пара <span id="statBadge_3" style="margin-left:8px; font-size:0.65rem; background:#e9edf2; padding:2px 8px; border-radius:40px;">0/20</span></th>
                     </tr>
                 </thead>
                 <tbody id="tableDynamicBody"></tbody>
@@ -360,7 +517,8 @@
         <span>🟢 Присутствовал(а)</span>
         <span>🔴 Отсутствовал(а)</span>
         <span>🖱️ Нажмите на имя — измените статус</span>
-        <span>💾 Автосохранение</span>
+        <span>✏️ Пишите в полях — дата появится в сводке</span>
+        <span>💾 Автосохранение по дням</span>
     </div>
 </div>
 
@@ -375,99 +533,204 @@
         "Шалагин Артём Алексеевич","Яничев Егор Андреевич"
     ];
 
+    const SUBJECTS_COUNT = 4;
+    const DAYS = ['mon', 'tue', 'wed', 'thu', 'fri'];
+    const DAY_FULL = { mon: 'Понедельник', tue: 'Вторник', wed: 'Среда', thu: 'Четверг', fri: 'Пятница' };
+    
+    let dataByDay = {
+        mon: { records: [], texts: ["", "", "", ""], dates: ["", "", "", ""] },
+        tue: { records: [], texts: ["", "", "", ""], dates: ["", "", "", ""] },
+        wed: { records: [], texts: ["", "", "", ""], dates: ["", "", "", ""] },
+        thu: { records: [], texts: ["", "", "", ""], dates: ["", "", "", ""] },
+        fri: { records: [], texts: ["", "", "", ""], dates: ["", "", "", ""] }
+    };
+    
+    let currentDay = 'mon';
+    const STORAGE_KEY = 'attendance_weekdays_date_in_summary_v14';
+
     function getShortName(full) { let p = full.trim().split(/\s+/); return (p.length>=2) ? `${p[0]} ${p[1]}` : full; }
     const shortToFull = new Map(); FULL_STUDENT_LIST.forEach(full => shortToFull.set(getShortName(full), full));
     const SHORT_NAMES_LIST = FULL_STUDENT_LIST.map(full => getShortName(full));
 
-    let attendanceRecords = [];
-    const STORAGE_KEY = 'attendanceRecords_paras_tap_v3';
-
     function saveToLocalStorage() {
         try {
-            const toSave = attendanceRecords.map(r => ({ fullName: r.fullName, literature: r.literature, mathematics: r.mathematics, language: r.language }));
+            const toSave = {};
+            for (let day of DAYS) {
+                toSave[day] = {
+                    records: dataByDay[day].records.map(r => ({ fullName: r.fullName, present: [...r.present] })),
+                    texts: [...dataByDay[day].texts],
+                    dates: [...dataByDay[day].dates]
+                };
+            }
             localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
         } catch(e) {}
     }
+
     function loadFromLocalStorage() {
         const saved = localStorage.getItem(STORAGE_KEY);
         if (!saved) return null;
         try {
-            const parsed = JSON.parse(saved);
-            if (Array.isArray(parsed) && parsed.length === FULL_STUDENT_LIST.length) {
-                let valid = true;
-                for (let i = 0; i < FULL_STUDENT_LIST.length; i++) {
-                    if (parsed[i].fullName !== FULL_STUDENT_LIST[i]) { valid = false; break; }
+            const data = JSON.parse(saved);
+            for (let day of DAYS) {
+                if (data[day] && data[day].records && data[day].records.length === FULL_STUDENT_LIST.length) {
+                    dataByDay[day].records = data[day].records;
+                    dataByDay[day].texts = data[day].texts || ["", "", "", ""];
+                    dataByDay[day].dates = data[day].dates || ["", "", "", ""];
                 }
-                if (valid) return parsed;
             }
-            return null;
+            return true;
         } catch(e) { return null; }
     }
+
     function initData() {
-        const saved = loadFromLocalStorage();
-        if (saved) attendanceRecords = saved;
-        else attendanceRecords = FULL_STUDENT_LIST.map(fullName => ({ fullName, literature: false, mathematics: false, language: false }));
+        for (let day of DAYS) {
+            if (dataByDay[day].records.length === 0) {
+                dataByDay[day].records = FULL_STUDENT_LIST.map(fullName => ({ fullName, present: Array(SUBJECTS_COUNT).fill(false) }));
+            }
+            if (dataByDay[day].texts.length !== SUBJECTS_COUNT) {
+                dataByDay[day].texts = ["", "", "", ""];
+            }
+            if (dataByDay[day].dates.length !== SUBJECTS_COUNT) {
+                dataByDay[day].dates = ["", "", "", ""];
+            }
+        }
+        loadFromLocalStorage();
     }
 
-    function updateHeaderStats() {
-        let lit=0, math=0, lang=0;
-        for(let s of attendanceRecords) { if(s.literature) lit++; if(s.mathematics) math++; if(s.language) lang++; }
-        const litEl = document.getElementById('litStatBadge');
-        const mathEl = document.getElementById('mathStatBadge');
-        const langEl = document.getElementById('langStatBadge');
-        if(litEl) litEl.innerText = `${lit}/20`;
-        if(mathEl) mathEl.innerText = `${math}/20`;
-        if(langEl) langEl.innerText = `${lang}/20`;
+    function getCurrentRecords() { return dataByDay[currentDay].records; }
+    function getCurrentTexts() { return dataByDay[currentDay].texts; }
+    function getCurrentDates() { return dataByDay[currentDay].dates; }
+    function setCurrentRecords(records) { dataByDay[currentDay].records = records; saveToLocalStorage(); }
+    function updateCurrentText(idx, value) { dataByDay[currentDay].texts[idx] = value; saveToLocalStorage(); }
+    function updateCurrentDate(idx, value) { dataByDay[currentDay].dates[idx] = value; saveToLocalStorage(); }
+
+    // Получить студентов, которые были хотя бы на одной паре
+    function getUniqueAttendedStudents() {
+        const unique = new Set();
+        const records = getCurrentRecords();
+        for (let s of records) {
+            if (s.present.some(v => v === true)) {
+                unique.add(getShortName(s.fullName));
+            }
+        }
+        return Array.from(unique);
     }
 
-    function renderSubjectCell(fullName, subjectKey, isPresent, subjectLabel) {
-        const statusText = isPresent ? 'Присутствовал(а)' : 'Отсутствовал(а)';
-        const badgeClass = isPresent ? 'badge-present' : 'badge-absent';
-        return `<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; width:100%;">
-                    <span class="mobile-subject-label">${subjectLabel}</span>
-                    <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-                        <span class="${badgeClass}">${statusText}</span>
-                        <div class="action-icons">
-                            <button class="icon-btn add" data-fullname="${escapeHtml(fullName)}" data-subject="${subjectKey}">➕</button>
-                            <button class="icon-btn remove" data-fullname="${escapeHtml(fullName)}" data-subject="${subjectKey}">➖</button>
-                        </div>
-                    </div>
-                </div>`;
+    // Получить "дату" из поля даты первой пары (или любой, но для сводки используем первую)
+    function getCurrentDayDate() {
+        const dates = getCurrentDates();
+        if (dates[0] && dates[0].trim() !== "") return dates[0].trim();
+        if (dates[1] && dates[1].trim() !== "") return dates[1].trim();
+        if (dates[2] && dates[2].trim() !== "") return dates[2].trim();
+        if (dates[3] && dates[3].trim() !== "") return dates[3].trim();
+        return "";
+    }
+
+    function renderUniqueAttendance() {
+        const uniqueList = getUniqueAttendedStudents();
+        const container = document.getElementById('uniqueAttendanceBlock');
+        if (!container) return;
+        const dateText = getCurrentDayDate();
+        const dateHtml = dateText ? `<div class="unique-date-badge">📅 ${escapeHtml(dateText)}</div>` : '';
+        
+        let html = `
+            <div class="unique-header">
+                <div style="display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap;">
+                    <h3>👥 ${DAY_FULL[currentDay]} — Все, кто был хотя бы на одной паре</h3>
+                    ${dateHtml}
+                </div>
+                <div class="unique-count">👤 ${uniqueList.length} / ${FULL_STUDENT_LIST.length}</div>
+            </div>
+            <div class="unique-list">
+        `;
+        if (uniqueList.length === 0) {
+            html += `<div class="empty-unique">— пока никто не отмечен —</div>`;
+        } else {
+            for (let name of uniqueList) {
+                html += `<span class="unique-student-tag">${escapeHtml(name)}</span>`;
+            }
+        }
+        html += `</div>`;
+        container.innerHTML = html;
+    }
+
+    function updateStats() {
+        const records = getCurrentRecords();
+        for (let i = 0; i < SUBJECTS_COUNT; i++) {
+            let count = 0;
+            for (let s of records) if (s.present[i]) count++;
+            const statSpan = document.getElementById(`statBadge_${i}`);
+            if (statSpan) statSpan.innerText = `${count}/${FULL_STUDENT_LIST.length}`;
+        }
+    }
+
+    function updateTableHeaders() {
+        const texts = getCurrentTexts();
+        for (let i = 0; i < SUBJECTS_COUNT; i++) {
+            const headerCell = document.getElementById(`header${i}`);
+            if (headerCell) {
+                const additionalText = texts[i] ? ` — ${texts[i]}` : '';
+                headerCell.innerHTML = `${i+1} пара${additionalText} <span id="statBadge_${i}" style="margin-left:8px; font-size:0.65rem; background:#e9edf2; padding:2px 8px; border-radius:40px;">0/${FULL_STUDENT_LIST.length}</span>`;
+            }
+        }
+        updateStats();
     }
 
     function renderMainTable() {
         const tbody = document.getElementById('tableDynamicBody');
         if(!tbody) return;
         tbody.innerHTML = '';
-        const subjects = [
-            { key: 'literature', label: '📖 1 пара — Литература' },
-            { key: 'mathematics', label: '📐 2 пара — Математика' },
-            { key: 'language', label: '🌍 3 пара — Иностранный' }
-        ];
-        for(const student of attendanceRecords) {
+        const records = getCurrentRecords();
+        const texts = getCurrentTexts();
+        for(const student of records) {
             const row = tbody.insertRow();
             const shortName = getShortName(student.fullName);
             const nameCell = row.insertCell(0);
             nameCell.innerHTML = `<span class="student-fullname">${escapeHtml(shortName)}</span>`;
-            const litCell = row.insertCell(1);
-            litCell.innerHTML = renderSubjectCell(student.fullName, 'literature', student.literature, subjects[0].label);
-            const mathCell = row.insertCell(2);
-            mathCell.innerHTML = renderSubjectCell(student.fullName, 'mathematics', student.mathematics, subjects[1].label);
-            const langCell = row.insertCell(3);
-            langCell.innerHTML = renderSubjectCell(student.fullName, 'language', student.language, subjects[2].label);
+            for (let i = 0; i < SUBJECTS_COUNT; i++) {
+                const cell = row.insertCell(i+1);
+                const isPresent = student.present[i];
+                const statusText = isPresent ? 'Присутствовал(а)' : 'Отсутствовал(а)';
+                const badgeClass = isPresent ? 'badge-present' : 'badge-absent';
+                const subjectLabel = texts[i] ? `${i+1} пара — ${texts[i]}` : `${i+1} пара`;
+                cell.innerHTML = `<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; width:100%;">
+                                    <span class="mobile-subject-label">${escapeHtml(subjectLabel)}</span>
+                                    <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                                        <span class="${badgeClass}">${statusText}</span>
+                                        <div class="action-icons">
+                                            <button class="icon-btn add" data-fullname="${escapeHtml(student.fullName)}" data-subject="${i}">➕</button>
+                                            <button class="icon-btn remove" data-fullname="${escapeHtml(student.fullName)}" data-subject="${i}">➖</button>
+                                        </div>
+                                    </div>
+                                </div>`;
+            }
         }
-        updateHeaderStats();
+        updateTableHeaders();
         bindInlineButtons();
     }
 
-    function setAttendanceStatus(fullName, subjectKey, isPresent) {
-        const student = attendanceRecords.find(s => s.fullName === fullName);
-        if(!student || student[subjectKey] === isPresent) return false;
-        student[subjectKey] = isPresent;
+    function setAttendanceStatus(fullName, subjectIdx, isPresent) {
+        const records = getCurrentRecords();
+        const student = records.find(s => s.fullName === fullName);
+        if(!student || student.present[subjectIdx] === isPresent) return false;
+        student.present[subjectIdx] = isPresent;
+        setCurrentRecords(records);
         renderMainTable();
         renderDraggableSummaries();
-        saveToLocalStorage();
+        renderUniqueAttendance();
         return true;
+    }
+
+    function updateSubjectText(idx, value) {
+        updateCurrentText(idx, value);
+        updateTableHeaders();
+        renderDraggableSummaries();
+    }
+
+    function updateDateField(idx, value) {
+        updateCurrentDate(idx, value);
+        renderDraggableSummaries();
+        renderUniqueAttendance(); // обновляем сводку, чтобы показать новую дату
     }
 
     let lastTapTime = 0;
@@ -477,20 +740,21 @@
         lastTapTime = now;
 
         const shortName = tagElement.getAttribute('data-name');
-        const subjectKey = tagElement.getAttribute('data-subject');
-        const currentStatus = tagElement.getAttribute('data-status');
-        if (!shortName || !subjectKey) return;
-
-        const newStatus = currentStatus === 'present' ? false : true;
+        const subjectIdx = parseInt(tagElement.getAttribute('data-subject'));
+        const currentStatus = tagElement.getAttribute('data-status') === 'present';
+        
         const fullName = shortToFull.get(shortName);
         if (!fullName) return;
-
-        const student = attendanceRecords.find(s => s.fullName === fullName);
-        if (student && student[subjectKey] !== newStatus) {
-            student[subjectKey] = newStatus;
+        
+        const newStatus = !currentStatus;
+        const records = getCurrentRecords();
+        const student = records.find(s => s.fullName === fullName);
+        if (student && student.present[subjectIdx] !== newStatus) {
+            student.present[subjectIdx] = newStatus;
+            setCurrentRecords(records);
             renderMainTable();
             renderDraggableSummaries();
-            saveToLocalStorage();
+            renderUniqueAttendance();
             showToast(`${shortName} → ${newStatus ? 'присутствует' : 'отсутствует'}`, newStatus ? '#1f5e3a' : '#a13e3e');
         }
     };
@@ -498,35 +762,40 @@
     function renderDraggableSummaries() {
         const container = document.getElementById('summaryContainer');
         if(!container) return;
-        const subjects = [
-            { key: 'literature', title: '📖 1 пара — Литература' },
-            { key: 'mathematics', title: '📐 2 пара — Математика' },
-            { key: 'language', title: '🌍 3 пара — Иностранный язык' }
-        ];
+        const records = getCurrentRecords();
+        const texts = getCurrentTexts();
+        const dates = getCurrentDates();
         let html = '';
-        for(let sub of subjects) {
+        for (let i = 0; i < SUBJECTS_COUNT; i++) {
             const present = [], absent = [];
-            for(let s of attendanceRecords) {
+            for(let s of records) {
                 const short = getShortName(s.fullName);
-                if(s[sub.key]) present.push(short);
+                if(s.present[i]) present.push(short);
                 else absent.push(short);
             }
-            html += `<div class="summary-card" data-subject="${sub.key}">
+            
+            html += `<div class="summary-card" data-subject="${i}">
                         <div class="card-header">
-                            <span>${sub.title}</span>
-                            <span class="counter">${present.length}/20</span>
+                            <div class="title-section">
+                                <span class="title">${i+1} пара</span>
+                                <input type="text" class="subject-input" placeholder="Название..." value="${escapeHtml(texts[i])}" onchange="updateSubjectText(${i}, this.value)">
+                            </div>
+                            <div class="right-stats">
+                                <span class="counter">${present.length}/${FULL_STUDENT_LIST.length}</span>
+                                <input type="text" class="date-input" placeholder="ДД.ММ.ГГГГ" value="${escapeHtml(dates[i])}" onchange="updateDateField(${i}, this.value)">
+                            </div>
                         </div>
                         <div class="split-lists">
                             <div class="present-block">
-                                <div class="present-title">✅ ПРИСУТСТВОВАЛ(А)</div>
-                                <div class="drop-zone" data-zone-type="present" data-subject="${sub.key}">
-                                    ${present.length===0 ? '<div class="empty-message">— перетащите или нажмите —</div>' : present.map(n => `<span class="student-tag" draggable="true" data-name="${escapeHtml(n)}" data-subject="${sub.key}" data-status="present" onclick="window.handleTagClick(this)">${escapeHtml(n)}</span>`).join('')}
+                                <div class="present-title">✅ ПРИСУТСТВОВАЛ(А) <span class="count-badge">${present.length}</span></div>
+                                <div class="drop-zone" data-zone-type="present" data-subject="${i}">
+                                    ${present.length===0 ? '<div class="empty-message">— перетащите или нажмите —</div>' : present.map(n => `<span class="student-tag" draggable="true" data-name="${escapeHtml(n)}" data-subject="${i}" data-status="present" onclick="window.handleTagClick(this)">${escapeHtml(n)}</span>`).join('')}
                                 </div>
                             </div>
                             <div class="absent-block">
-                                <div class="absent-title">❌ ОТСУТСТВОВАЛ(А)</div>
-                                <div class="drop-zone" data-zone-type="absent" data-subject="${sub.key}">
-                                    ${absent.length===0 ? '<div class="empty-message">— перетащите или нажмите —</div>' : absent.map(n => `<span class="student-tag" draggable="true" data-name="${escapeHtml(n)}" data-subject="${sub.key}" data-status="absent" onclick="window.handleTagClick(this)">${escapeHtml(n)}</span>`).join('')}
+                                <div class="absent-title">❌ ОТСУТСТВОВАЛ(А) <span class="count-badge">${absent.length}</span></div>
+                                <div class="drop-zone" data-zone-type="absent" data-subject="${i}">
+                                    ${absent.length===0 ? '<div class="empty-message">— перетащите или нажмите —</div>' : absent.map(n => `<span class="student-tag" draggable="true" data-name="${escapeHtml(n)}" data-subject="${i}" data-status="absent" onclick="window.handleTagClick(this)">${escapeHtml(n)}</span>`).join('')}
                                 </div>
                             </div>
                         </div>
@@ -536,6 +805,16 @@
         attachDragAndDropEvents();
     }
 
+    window.updateSubjectText = function(idx, value) {
+        updateCurrentText(idx, value);
+        updateTableHeaders();
+    };
+
+    window.updateDateField = function(idx, value) {
+        updateCurrentDate(idx, value);
+        renderUniqueAttendance();
+    };
+
     let draggedItem = null;
     function attachDragAndDropEvents() {
         document.querySelectorAll('.student-tag').forEach(el => {
@@ -543,7 +822,7 @@
             el.ondragstart = e => {
                 draggedItem = {
                     shortName: el.getAttribute('data-name'),
-                    subjectKey: el.getAttribute('data-subject'),
+                    subjectIdx: parseInt(el.getAttribute('data-subject')),
                     sourceStatus: el.getAttribute('data-status')
                 };
                 e.dataTransfer.setData('text/plain', draggedItem.shortName);
@@ -563,9 +842,9 @@
                 zone.classList.remove('drag-over');
                 if(!draggedItem) return;
                 const targetType = zone.getAttribute('data-zone-type');
-                const targetSubject = zone.getAttribute('data-subject');
-                if(draggedItem.subjectKey !== targetSubject) {
-                    showToast('Нельзя перемещать между разными предметами', '#a13e3e');
+                const targetSubject = parseInt(zone.getAttribute('data-subject'));
+                if(draggedItem.subjectIdx !== targetSubject) {
+                    showToast('Нельзя перемещать между разными парами', '#a13e3e');
                     return;
                 }
                 if((draggedItem.sourceStatus === 'present' && targetType === 'present') || (draggedItem.sourceStatus === 'absent' && targetType === 'absent')) {
@@ -575,12 +854,14 @@
                 const fullName = shortToFull.get(draggedItem.shortName);
                 if(!fullName) return;
                 const newStatus = targetType === 'present';
-                const student = attendanceRecords.find(s => s.fullName === fullName);
-                if(student && student[draggedItem.subjectKey] !== newStatus) {
-                    student[draggedItem.subjectKey] = newStatus;
+                const records = getCurrentRecords();
+                const student = records.find(s => s.fullName === fullName);
+                if(student && student.present[draggedItem.subjectIdx] !== newStatus) {
+                    student.present[draggedItem.subjectIdx] = newStatus;
+                    setCurrentRecords(records);
                     renderMainTable();
                     renderDraggableSummaries();
-                    saveToLocalStorage();
+                    renderUniqueAttendance();
                     showToast(`${draggedItem.shortName} теперь ${newStatus ? 'присутствует' : 'отсутствует'}`, newStatus ? '#1f5e3a' : '#a13e3e');
                 }
             };
@@ -597,41 +878,67 @@
 
     function bindInlineButtons() {
         document.querySelectorAll('.icon-btn.add').forEach(btn => {
-            btn.onclick = () => setAttendanceStatus(btn.getAttribute('data-fullname'), btn.getAttribute('data-subject'), true);
+            btn.onclick = () => setAttendanceStatus(btn.getAttribute('data-fullname'), parseInt(btn.getAttribute('data-subject')), true);
         });
         document.querySelectorAll('.icon-btn.remove').forEach(btn => {
-            btn.onclick = () => setAttendanceStatus(btn.getAttribute('data-fullname'), btn.getAttribute('data-subject'), false);
+            btn.onclick = () => setAttendanceStatus(btn.getAttribute('data-fullname'), parseInt(btn.getAttribute('data-subject')), false);
         });
     }
 
-    function resetAll() {
-        if(confirm('Сбросить все отметки по всем трём парам?')) {
-            attendanceRecords.forEach(s => { s.literature = false; s.mathematics = false; s.language = false; });
+    function resetCurrentDay() {
+        if(confirm(`Сбросить все отметки для ${DAY_FULL[currentDay]}?`)) {
+            const records = getCurrentRecords();
+            for(let s of records) {
+                for(let i=0; i<SUBJECTS_COUNT; i++) s.present[i] = false;
+            }
+            setCurrentRecords(records);
             renderMainTable();
             renderDraggableSummaries();
-            saveToLocalStorage();
-            showToast('✨ Вся посещаемость сброшена', '#2c3e5c');
-        }
-    }
-    function clearAllSavedData() {
-        if(confirm('Очистить ВСЕ сохранённые данные? Это удалит все отметки.')) {
-            localStorage.removeItem(STORAGE_KEY);
-            attendanceRecords = FULL_STUDENT_LIST.map(n => ({ fullName: n, literature: false, mathematics: false, language: false }));
-            renderMainTable();
-            renderDraggableSummaries();
-            saveToLocalStorage();
-            showToast('🗑 Данные очищены', '#8b3c3c');
+            renderUniqueAttendance();
+            showToast(`✨ Посещаемость для ${DAY_FULL[currentDay]} сброшена`, '#2c3e5c');
         }
     }
 
-    function findFullByInput(input) {
-        let t = input.trim();
-        if(shortToFull.has(t)) return shortToFull.get(t);
-        let lower = t.toLowerCase();
-        let match = SHORT_NAMES_LIST.find(n => n.toLowerCase() === lower);
-        if(match) return shortToFull.get(match);
-        let partial = SHORT_NAMES_LIST.filter(n => n.toLowerCase().includes(lower));
-        return partial.length === 1 ? shortToFull.get(partial[0]) : null;
+    function clearAllData() {
+        if(confirm('Очистить ВСЕ сохранённые данные (все дни недели)? Это удалит все отметки, названия и даты.')) {
+            localStorage.removeItem(STORAGE_KEY);
+            for (let day of DAYS) {
+                dataByDay[day].records = FULL_STUDENT_LIST.map(fullName => ({ fullName, present: Array(SUBJECTS_COUNT).fill(false) }));
+                dataByDay[day].texts = ["", "", "", ""];
+                dataByDay[day].dates = ["", "", "", ""];
+            }
+            renderMainTable();
+            renderDraggableSummaries();
+            renderUniqueAttendance();
+            updateTableHeaders();
+            showToast('🗑 Все данные очищены', '#8b3c3c');
+        }
+    }
+
+    function switchDay(day) {
+        currentDay = day;
+        document.querySelectorAll('.day-btn').forEach(btn => {
+            if (btn.getAttribute('data-day') === day) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+        renderMainTable();
+        renderDraggableSummaries();
+        renderUniqueAttendance();
+        updateTableHeaders();
+        
+        const select = document.getElementById('subjectPairSelect');
+        if (select) {
+            select.innerHTML = '';
+            for (let i = 0; i < SUBJECTS_COUNT; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = `${i+1} пара`;
+                select.appendChild(option);
+            }
+        }
     }
 
     function initPanelControls() {
@@ -644,7 +951,8 @@
             if(!raw) { alert('Введите фамилию и имя'); return; }
             let full = findFullByInput(raw);
             if(!full) { alert(`Студент "${raw}" не найден`); return; }
-            setAttendanceStatus(full, subjectSelect.value, true);
+            let subjectIdx = parseInt(subjectSelect.value);
+            setAttendanceStatus(full, subjectIdx, true);
             nameInput.value = getShortName(full);
         };
         absentBtn.onclick = () => {
@@ -652,9 +960,20 @@
             if(!raw) { alert('Введите фамилию и имя'); return; }
             let full = findFullByInput(raw);
             if(!full) { alert(`Студент "${raw}" не найден`); return; }
-            setAttendanceStatus(full, subjectSelect.value, false);
+            let subjectIdx = parseInt(subjectSelect.value);
+            setAttendanceStatus(full, subjectIdx, false);
             nameInput.value = getShortName(full);
         };
+    }
+
+    function findFullByInput(input) {
+        let t = input.trim();
+        if(shortToFull.has(t)) return shortToFull.get(t);
+        let lower = t.toLowerCase();
+        let match = SHORT_NAMES_LIST.find(n => n.toLowerCase() === lower);
+        if(match) return shortToFull.get(match);
+        let partial = SHORT_NAMES_LIST.filter(n => n.toLowerCase().includes(lower));
+        return partial.length === 1 ? shortToFull.get(partial[0]) : null;
     }
 
     function populateDatalist() {
@@ -678,9 +997,17 @@
         populateDatalist();
         renderMainTable();
         renderDraggableSummaries();
+        renderUniqueAttendance();
+        updateTableHeaders();
         initPanelControls();
-        document.getElementById('globalResetBtn').addEventListener('click', resetAll);
-        document.getElementById('clearStorageBtn').addEventListener('click', clearAllSavedData);
+        
+        document.querySelectorAll('.day-btn').forEach(btn => {
+            btn.addEventListener('click', () => switchDay(btn.getAttribute('data-day')));
+        });
+        
+        document.getElementById('globalResetBtn').addEventListener('click', resetCurrentDay);
+        document.getElementById('clearStorageBtn').addEventListener('click', clearAllData);
+        switchDay('mon');
     }
     document.addEventListener('DOMContentLoaded', init);
 </script>
