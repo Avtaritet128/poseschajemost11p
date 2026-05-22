@@ -2,87 +2,528 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Журнал посещаемости | Supabase</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>Журнал посещаемости | Дата отображается в сводке</title>
     <style>
-        * { box-sizing: border-box; font-family: system-ui, sans-serif; }
-        body { background: #eef2f8; margin: 0; padding: 16px; }
-        .main-dashboard { max-width: 1600px; margin: 0 auto; background: white; border-radius: 32px; overflow: hidden; box-shadow: 0 20px 40px -12px rgba(0,0,0,0.15); }
-        .header { background: #0f2b3d; padding: 1rem 1.5rem; color: white; }
-        .header h1 { margin: 0; font-size: 1.5rem; }
-        .header p { margin: 0.3rem 0 0; opacity: 0.8; font-size: 0.8rem; }
-        .weekdays-bar { background: #f8fafc; padding: 0.8rem; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; border-bottom: 1px solid #e4e9f0; }
-        .day-btn { background: #f1f5f9; border: 1px solid #cbd5e6; padding: 8px 20px; border-radius: 40px; cursor: pointer; font-weight: 500; }
-        .day-btn.active { background: #1f3b4c; color: white; border-color: #1f3b4c; }
-        .reset-btn { background: #f1f5f9; border: 1px solid #cbd5e6; padding: 8px 20px; border-radius: 40px; cursor: pointer; margin-left: 10px; }
-        .status { padding: 0.5rem 1rem; background: #e6f7e6; margin: 0.5rem 1rem; border-radius: 40px; font-size: 0.8rem; text-align: center; }
-        .status.error { background: #ffe6e5; color: #b91c1c; }
-        .two-columns { display: flex; flex-wrap: wrap; gap: 24px; padding: 1.5rem; }
-        .table-container { flex: 2; overflow-x: auto; }
-        .summary-container { flex: 1.4; }
-        table { width: 100%; border-collapse: collapse; background: white; border-radius: 20px; font-size: 0.85rem; }
-        th, td { padding: 10px 8px; border-bottom: 1px solid #e2e8f0; text-align: left; }
-        .student-name { font-weight: 600; white-space: nowrap; }
-        .badge { display: inline-block; padding: 4px 12px; border-radius: 32px; font-size: 0.7rem; font-weight: 600; min-width: 110px; text-align: center; }
-        .present { background: #dcfce7; color: #15803d; }
-        .absent { background: #fee9e6; color: #b91c1c; }
-        .action-icons { display: flex; gap: 6px; margin-top: 6px; justify-content: center; }
-        .icon-btn { background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 30px; padding: 3px 12px; font-size: 0.65rem; font-weight: 600; cursor: pointer; }
-        .summary-card { background: #fefefe; border: 1px solid #e9edf2; border-radius: 24px; margin-bottom: 16px; overflow: hidden; }
-        .card-header { background: #f1f5f9; padding: 12px 16px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; border-bottom: 1px solid #e2e8f0; }
-        .subject-input { padding: 5px 12px; border-radius: 60px; border: 1px solid #cbd5e1; font-size: 0.8rem; width: 160px; }
-        .date-input { padding: 5px 12px; border-radius: 60px; border: 1px solid #cbd5e1; font-size: 0.7rem; width: 110px; text-align: center; }
+        * {
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background: #eef2f8;
+            margin: 0;
+            padding: 16px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .main-dashboard {
+            max-width: 1800px;
+            width: 100%;
+            background: white;
+            border-radius: 32px;
+            box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+        }
+
+        .journal-header {
+            background: #0f2b3d;
+            padding: 1.2rem 1.5rem;
+            color: white;
+        }
+        .journal-header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 650;
+        }
+        .journal-header p {
+            margin: 0.4rem 0 0;
+            opacity: 0.8;
+            font-size: 0.8rem;
+        }
+
+        .weekdays-bar {
+            background: #f8fafc;
+            padding: 0.8rem 1.2rem;
+            border-bottom: 1px solid #e4e9f0;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .day-btn {
+            background: #f1f5f9;
+            border: 1px solid #cbd5e6;
+            padding: 8px 20px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: 0.2s;
+            color: #1e293b;
+        }
+        .day-btn.active {
+            background: #1f3b4c;
+            color: white;
+            border-color: #1f3b4c;
+        }
+        .day-btn:hover:not(.active) {
+            background: #e2e8f0;
+        }
+
+        .top-control-panel {
+            background: #ffffff;
+            padding: 1rem 1.2rem;
+            border-bottom: 1px solid #e4e9f0;
+        }
+        .mark-card {
+            background: #f7f9fc;
+            border-radius: 24px;
+            padding: 1rem;
+        }
+        .flex-row {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .input-group {
+            width: 100%;
+        }
+        .input-group label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #2c3e5c;
+            margin-bottom: 4px;
+            display: block;
+        }
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 60px;
+            border: 1px solid #cbdae9;
+            font-size: 0.9rem;
+            background: white;
+        }
+        .double-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 4px;
+        }
+        .mark-btn {
+            flex: 1;
+            background: #1f3b4c;
+            border: none;
+            color: white;
+            padding: 12px 16px;
+            border-radius: 60px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.85rem;
+            text-align: center;
+            transition: 0.15s;
+        }
+        .mark-btn.remove-mode {
+            background: #8b3c3c;
+        }
+        .mark-btn:active {
+            transform: scale(0.97);
+        }
+
+        .action-bar {
+            background: #f9fbfd;
+            padding: 0.8rem 1.2rem;
+            border-bottom: 1px solid #e4e9f0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .reset-btn, .clear-storage-btn {
+            background: #f1f5f9;
+            border: 1px solid #cbd5e6;
+            padding: 8px 18px;
+            border-radius: 40px;
+            font-weight: 500;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+        .clear-storage-btn {
+            background: #fff1f0;
+            border-color: #fbc4c1;
+            color: #b13e3e;
+        }
+
+        .unique-attendance-block {
+            background: #fef9e6;
+            border: 1px solid #ffe5b4;
+            border-radius: 28px;
+            padding: 1rem 1.2rem;
+            margin-bottom: 1.5rem;
+        }
+        .unique-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            flex-wrap: wrap;
+            margin-bottom: 0.8rem;
+            border-bottom: 2px solid #ffdd99;
+            padding-bottom: 6px;
+        }
+        .unique-header h3 {
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #8a6e2f;
+        }
+        .unique-date-badge {
+            font-size: 0.75rem;
+            background: #ffefcf;
+            padding: 4px 12px;
+            border-radius: 40px;
+            color: #a07c2e;
+        }
+        .unique-count {
+            background: #ffefcf;
+            padding: 4px 12px;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #a07c2e;
+        }
+        .unique-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            padding: 4px 0;
+        }
+        .unique-student-tag {
+            background: #fff5e0;
+            border: 1px solid #ffdb9e;
+            padding: 6px 14px;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #5e4a1e;
+        }
+        .empty-unique {
+            color: #b88b3a;
+            font-style: italic;
+            font-size: 0.8rem;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .two-columns {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            padding: 1.2rem;
+        }
+        .left-grid, .right-summary {
+            width: 100%;
+        }
+
+        .attend-table {
+            display: block;
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+        }
+        .attend-table thead {
+            display: none;
+        }
+        .attend-table tbody {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .attend-table tr {
+            display: block;
+            background: white;
+            border-radius: 20px;
+            border: 1px solid #e9edf2;
+            padding: 14px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+        }
+        .attend-table td {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #edf2f7;
+            flex-wrap: wrap;
+        }
+        .attend-table td:last-child {
+            border-bottom: none;
+        }
+        .student-fullname {
+            font-weight: 600;
+            font-size: 1rem;
+            color: #0a1c2f;
+            flex: 1;
+        }
+        .mobile-subject-label {
+            font-weight: 600;
+            font-size: 0.7rem;
+            color: #2c5a7a;
+            background: #eef2ff;
+            padding: 4px 10px;
+            border-radius: 30px;
+            display: inline-block;
+        }
+        .badge-present, .badge-absent {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 32px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            min-width: 110px;
+            text-align: center;
+        }
+        .badge-present { background: #dcfce7; color: #15803d; }
+        .badge-absent { background: #fee9e6; color: #b91c1c; }
+        .action-icons {
+            display: flex;
+            gap: 8px;
+            margin-left: 8px;
+        }
+        .icon-btn {
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            border-radius: 30px;
+            padding: 5px 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .icon-btn.add { background: #e6f7e6; color: #2b6e2f; }
+        .icon-btn.remove { background: #ffe6e5; color: #b13e3e; }
+
+        .summary-card {
+            background: #fefefe;
+            border-radius: 24px;
+            border: 1px solid #e9edf2;
+            margin-bottom: 16px;
+        }
+        .card-header {
+            background: #f1f5f9;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e2e8f0;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .title-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .title-section .title {
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: #1e4a76;
+            white-space: nowrap;
+        }
+        .title-section .subject-input {
+            padding: 6px 12px;
+            border-radius: 60px;
+            border: 1px solid #cbd5e1;
+            font-size: 0.85rem;
+            background: white;
+            width: 200px;
+            max-width: 100%;
+        }
+        .title-section .subject-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59,130,246,0.2);
+        }
+        .card-header .right-stats {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .card-header .counter {
+            background: white;
+            border-radius: 40px;
+            padding: 2px 12px;
+            font-size: 0.7rem;
+            white-space: nowrap;
+        }
+        .card-header .date-input {
+            padding: 4px 12px;
+            border-radius: 60px;
+            border: 1px solid #cbd5e1;
+            font-size: 0.7rem;
+            background: white;
+            width: 110px;
+            text-align: center;
+        }
+        .card-header .date-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
         .split-lists { padding: 12px; }
-        .present-block, .absent-block { margin-bottom: 16px; }
-        .section-title { font-weight: 600; font-size: 0.75rem; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
-        .count-badge { background: white; border-radius: 40px; padding: 2px 10px; font-size: 0.65rem; }
-        .student-tag { background: #f8fafc; padding: 6px 12px; border-radius: 40px; font-size: 0.75rem; display: inline-block; margin: 4px 6px 4px 0; border: 1px solid #cbd5e1; cursor: pointer; transition: 0.1s; }
+        .present-block, .absent-block { margin-bottom: 20px; }
+        .present-title, .absent-title {
+            font-weight: 600;
+            font-size: 0.75rem;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .present-title .count-badge, .absent-title .count-badge {
+            background: white;
+            border-radius: 40px;
+            padding: 2px 10px;
+            font-size: 0.65rem;
+            font-weight: 600;
+        }
+        .present-title .count-badge { color: #15803d; }
+        .absent-title .count-badge { color: #b91c1c; }
+        .student-tag {
+            background: #f8fafc;
+            padding: 8px 14px;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            margin: 5px 8px 5px 0;
+            display: inline-block;
+            border: 1px solid #cbd5e1;
+            cursor: pointer;
+            transition: 0.1s;
+        }
         .student-tag:active { transform: scale(0.96); background: #e2e8f0; }
-        .drop-zone { min-height: 65px; padding: 6px; background: #fafcff; border-radius: 16px; }
-        .empty-message { color: #94a3b8; font-style: italic; font-size: 0.7rem; text-align: center; padding: 12px; }
-        .legend-bottom { display: flex; gap: 20px; justify-content: center; padding: 1rem; background: #f9fbfd; border-top: 1px solid #e4e9f0; font-size: 0.7rem; flex-wrap: wrap; }
-        @media (max-width: 768px) { .two-columns { flex-direction: column; } .subject-input { width: 120px; } .date-input { width: 90px; } }
+        .drop-zone {
+            min-height: 70px;
+            border-radius: 20px;
+            padding: 8px;
+            background: #fafcff;
+            transition: 0.1s;
+        }
+        .drop-zone.drag-over { background: #eef2ff; }
+        .empty-message {
+            font-size: 0.7rem;
+            color: #94a3b8;
+            padding: 12px;
+            text-align: center;
+            font-style: italic;
+        }
+
+        .legend-bottom {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            padding: 1rem;
+            background: #f9fbfd;
+            border-top: 1px solid #e4e9f0;
+            font-size: 0.7rem;
+        }
+
+        @media (min-width: 768px) {
+            body { padding: 24px; }
+            .flex-row { flex-direction: row; align-items: flex-end; }
+            .input-group { flex: 2; min-width: 200px; }
+            .double-buttons { flex: 1; margin-top: 0; }
+            .two-columns { flex-direction: row; padding: 1.8rem; }
+            .left-grid { flex: 2; }
+            .right-summary { flex: 1.4; }
+            .attend-table { display: table; }
+            .attend-table thead { display: table-header-group; }
+            .attend-table tbody { display: table-row-group; }
+            .attend-table tr { display: table-row; padding: 0; box-shadow: none; border: none; border-bottom: 1px solid #edf2f7; }
+            .attend-table td { display: table-cell; padding: 12px 8px; border-bottom: 1px solid #edf2f7; }
+            .mobile-subject-label { display: none; }
+        }
+        @media (max-width: 767px) {
+            .mobile-subject-label { display: inline-block; }
+            .attend-table td { flex-direction: column; align-items: flex-start; gap: 8px; }
+            .attend-table td .action-icons { margin-left: 0; margin-top: 6px; }
+            .title-section .subject-input { width: 140px; }
+            .card-header .date-input { width: 90px; }
+        }
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 <div class="main-dashboard">
-    <div class="header">
+    <div class="journal-header">
         <h1>📋 Журнал посещаемости</h1>
-        <p>Синхронизация через Supabase · Все устройства видят одни и те же данные</p>
+        <p>Пн–Пт · 4 пары · Нажмите на имя для изменения статуса · Дата отображается в сводке</p>
     </div>
-    <div class="weekdays-bar" id="weekdaysBar"></div>
-    <div id="syncStatus" class="status">🔄 Подключение к Supabase...</div>
-    <div class="two-columns">
-        <div class="table-container">
-            <table id="mainTable"><thead><tr id="tableHeader"><tr></thead><tbody id="tableBody"></tbody></table>
+
+    <div class="weekdays-bar">
+        <button class="day-btn" data-day="mon">ПН</button>
+        <button class="day-btn" data-day="tue">ВТ</button>
+        <button class="day-btn" data-day="wed">СР</button>
+        <button class="day-btn" data-day="thu">ЧТ</button>
+        <button class="day-btn" data-day="fri">ПТ</button>
+    </div>
+
+    <div class="top-control-panel">
+        <div class="mark-card">
+            <div class="flex-row">
+                <div class="input-group">
+                    <label>Фамилия и Имя</label>
+                    <input type="text" id="studentNameField" placeholder="Например: Островская Диана" list="studentsDatalist" autocomplete="off">
+                    <datalist id="studentsDatalist"></datalist>
+                </div>
+                <div class="input-group">
+                    <label>Предмет (пара)</label>
+                    <select id="subjectPairSelect"></select>
+                </div>
+                <div class="double-buttons">
+                    <button class="mark-btn" id="markPresentBtn">➕ Присутств.</button>
+                    <button class="mark-btn remove-mode" id="markAbsentBtn">➖ Отсутств.</button>
+                </div>
+            </div>
         </div>
-        <div class="summary-container" id="summaryContainer"></div>
     </div>
+
+    <div class="action-bar">
+        <button class="reset-btn" id="globalResetBtn">⟳ Сбросить всё (текущий день)</button>
+        <button class="clear-storage-btn" id="clearStorageBtn">🗑 Очистить данные (все дни)</button>
+    </div>
+
+    <div class="two-columns">
+        <div class="left-grid">
+            <div id="uniqueAttendanceBlock" class="unique-attendance-block"></div>
+            <table class="attend-table" id="mainTable">
+                <thead id="tableHeader">
+                    <tr id="headerRow">
+                        <th>👥 Студент</th>
+                        <th id="header0">1 пара <span id="statBadge_0" style="margin-left:8px; font-size:0.65rem; background:#e9edf2; padding:2px 8px; border-radius:40px;">0/20</span></th>
+                        <th id="header1">2 пара <span id="statBadge_1" style="margin-left:8px; font-size:0.65rem; background:#e9edf2; padding:2px 8px; border-radius:40px;">0/20</span></th>
+                        <th id="header2">3 пара <span id="statBadge_2" style="margin-left:8px; font-size:0.65rem; background:#e9edf2; padding:2px 8px; border-radius:40px;">0/20</span></th>
+                        <th id="header3">4 пара <span id="statBadge_3" style="margin-left:8px; font-size:0.65rem; background:#e9edf2; padding:2px 8px; border-radius:40px;">0/20</span></th>
+                    </tr>
+                </thead>
+                <tbody id="tableDynamicBody"></tbody>
+            </table>
+        </div>
+        <div class="right-summary" id="summaryContainer"></div>
+    </div>
+
     <div class="legend-bottom">
         <span>🟢 Присутствовал(а)</span>
         <span>🔴 Отсутствовал(а)</span>
         <span>🖱️ Нажмите на имя — измените статус</span>
-        <span>✏️ Пишите в полях — данные сохраняются в облаке</span>
+        <span>✏️ Пишите в полях — дата появится в сводке</span>
+        <span>💾 Автосохранение по дням</span>
     </div>
 </div>
 
 <script>
-    // ========== НАСТРОЙКИ SUPABASE (ЗАМЕНИТЕ НА СВОИ!) ==========
-    const SUPABASE_URL = 'https://zkm-itre-ubdb0-cuvf5-mp0lw.supabase.co';      // Вставьте ваш Project URL
-    const SUPABASE_ANON_KEY = 'sb_publishable_ZkmITreUbdbOCuVF5Mp0lw_H8dbnovf';            // Вставьте ваш anon public key
-    // ============================================================
-
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    
-    let currentDay = 'mon';
-    let attendanceData = {};      // { fullName: [present0, present1, present2, present3] }
-    let subjectTexts = {};        // { 0: "текст", 1: "текст", ... }
-    let dateTexts = {};           // { 0: "дата", 1: "дата", ... }
-    
-    const DAYS = { mon: 'ПН', tue: 'ВТ', wed: 'СР', thu: 'ЧТ', fri: 'ПТ' };
-    const DAYS_FULL = { mon: 'Понедельник', tue: 'Вторник', wed: 'Среда', thu: 'Четверг', fri: 'Пятница' };
-    const STUDENTS = [
+    const FULL_STUDENT_LIST = [
         "Аношин Михаил Александрович","Богданович Андрей Сергеевич","Бодров Максим Вячеславович",
         "Викторов Александр Дмитриевич","Гневанов Арсений Данилович","Громов Денис Алексеевич",
         "Жороев Мухаммад Кудуратович","Зуев Андрей Алексеевич","Кулешов Матвей Сергеевич",
@@ -91,240 +532,484 @@
         "Семянченков Руслан Ихтиёрович","Хохлов Егор Андреевич","Цаплин Иван Николаевич",
         "Шалагин Артём Алексеевич","Яничев Егор Андреевич"
     ];
+
+    const SUBJECTS_COUNT = 4;
+    const DAYS = ['mon', 'tue', 'wed', 'thu', 'fri'];
+    const DAY_FULL = { mon: 'Понедельник', tue: 'Вторник', wed: 'Среда', thu: 'Четверг', fri: 'Пятница' };
     
-    function getShortName(full) { let p = full.split(/\s+/); return p.length >= 2 ? `${p[0]} ${p[1]}` : full; }
+    let dataByDay = {
+        mon: { records: [], texts: ["", "", "", ""], dates: ["", "", "", ""] },
+        tue: { records: [], texts: ["", "", "", ""], dates: ["", "", "", ""] },
+        wed: { records: [], texts: ["", "", "", ""], dates: ["", "", "", ""] },
+        thu: { records: [], texts: ["", "", "", ""], dates: ["", "", "", ""] },
+        fri: { records: [], texts: ["", "", "", ""], dates: ["", "", "", ""] }
+    };
     
-    function showToast(msg, isError = false) {
-        const t = document.createElement('div');
+    let currentDay = 'mon';
+    const STORAGE_KEY = 'attendance_weekdays_date_in_summary_v14';
+
+    function getShortName(full) { let p = full.trim().split(/\s+/); return (p.length>=2) ? `${p[0]} ${p[1]}` : full; }
+    const shortToFull = new Map(); FULL_STUDENT_LIST.forEach(full => shortToFull.set(getShortName(full), full));
+    const SHORT_NAMES_LIST = FULL_STUDENT_LIST.map(full => getShortName(full));
+
+    function saveToLocalStorage() {
+        try {
+            const toSave = {};
+            for (let day of DAYS) {
+                toSave[day] = {
+                    records: dataByDay[day].records.map(r => ({ fullName: r.fullName, present: [...r.present] })),
+                    texts: [...dataByDay[day].texts],
+                    dates: [...dataByDay[day].dates]
+                };
+            }
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
+        } catch(e) {}
+    }
+
+    function loadFromLocalStorage() {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (!saved) return null;
+        try {
+            const data = JSON.parse(saved);
+            for (let day of DAYS) {
+                if (data[day] && data[day].records && data[day].records.length === FULL_STUDENT_LIST.length) {
+                    dataByDay[day].records = data[day].records;
+                    dataByDay[day].texts = data[day].texts || ["", "", "", ""];
+                    dataByDay[day].dates = data[day].dates || ["", "", "", ""];
+                }
+            }
+            return true;
+        } catch(e) { return null; }
+    }
+
+    function initData() {
+        for (let day of DAYS) {
+            if (dataByDay[day].records.length === 0) {
+                dataByDay[day].records = FULL_STUDENT_LIST.map(fullName => ({ fullName, present: Array(SUBJECTS_COUNT).fill(false) }));
+            }
+            if (dataByDay[day].texts.length !== SUBJECTS_COUNT) {
+                dataByDay[day].texts = ["", "", "", ""];
+            }
+            if (dataByDay[day].dates.length !== SUBJECTS_COUNT) {
+                dataByDay[day].dates = ["", "", "", ""];
+            }
+        }
+        loadFromLocalStorage();
+    }
+
+    function getCurrentRecords() { return dataByDay[currentDay].records; }
+    function getCurrentTexts() { return dataByDay[currentDay].texts; }
+    function getCurrentDates() { return dataByDay[currentDay].dates; }
+    function setCurrentRecords(records) { dataByDay[currentDay].records = records; saveToLocalStorage(); }
+    function updateCurrentText(idx, value) { dataByDay[currentDay].texts[idx] = value; saveToLocalStorage(); }
+    function updateCurrentDate(idx, value) { dataByDay[currentDay].dates[idx] = value; saveToLocalStorage(); }
+
+    // Получить студентов, которые были хотя бы на одной паре
+    function getUniqueAttendedStudents() {
+        const unique = new Set();
+        const records = getCurrentRecords();
+        for (let s of records) {
+            if (s.present.some(v => v === true)) {
+                unique.add(getShortName(s.fullName));
+            }
+        }
+        return Array.from(unique);
+    }
+
+    // Получить "дату" из поля даты первой пары (или любой, но для сводки используем первую)
+    function getCurrentDayDate() {
+        const dates = getCurrentDates();
+        if (dates[0] && dates[0].trim() !== "") return dates[0].trim();
+        if (dates[1] && dates[1].trim() !== "") return dates[1].trim();
+        if (dates[2] && dates[2].trim() !== "") return dates[2].trim();
+        if (dates[3] && dates[3].trim() !== "") return dates[3].trim();
+        return "";
+    }
+
+    function renderUniqueAttendance() {
+        const uniqueList = getUniqueAttendedStudents();
+        const container = document.getElementById('uniqueAttendanceBlock');
+        if (!container) return;
+        const dateText = getCurrentDayDate();
+        const dateHtml = dateText ? `<div class="unique-date-badge">📅 ${escapeHtml(dateText)}</div>` : '';
+        
+        let html = `
+            <div class="unique-header">
+                <div style="display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap;">
+                    <h3>👥 ${DAY_FULL[currentDay]} — Все, кто был хотя бы на одной паре</h3>
+                    ${dateHtml}
+                </div>
+                <div class="unique-count">👤 ${uniqueList.length} / ${FULL_STUDENT_LIST.length}</div>
+            </div>
+            <div class="unique-list">
+        `;
+        if (uniqueList.length === 0) {
+            html += `<div class="empty-unique">— пока никто не отмечен —</div>`;
+        } else {
+            for (let name of uniqueList) {
+                html += `<span class="unique-student-tag">${escapeHtml(name)}</span>`;
+            }
+        }
+        html += `</div>`;
+        container.innerHTML = html;
+    }
+
+    function updateStats() {
+        const records = getCurrentRecords();
+        for (let i = 0; i < SUBJECTS_COUNT; i++) {
+            let count = 0;
+            for (let s of records) if (s.present[i]) count++;
+            const statSpan = document.getElementById(`statBadge_${i}`);
+            if (statSpan) statSpan.innerText = `${count}/${FULL_STUDENT_LIST.length}`;
+        }
+    }
+
+    function updateTableHeaders() {
+        const texts = getCurrentTexts();
+        for (let i = 0; i < SUBJECTS_COUNT; i++) {
+            const headerCell = document.getElementById(`header${i}`);
+            if (headerCell) {
+                const additionalText = texts[i] ? ` — ${texts[i]}` : '';
+                headerCell.innerHTML = `${i+1} пара${additionalText} <span id="statBadge_${i}" style="margin-left:8px; font-size:0.65rem; background:#e9edf2; padding:2px 8px; border-radius:40px;">0/${FULL_STUDENT_LIST.length}</span>`;
+            }
+        }
+        updateStats();
+    }
+
+    function renderMainTable() {
+        const tbody = document.getElementById('tableDynamicBody');
+        if(!tbody) return;
+        tbody.innerHTML = '';
+        const records = getCurrentRecords();
+        const texts = getCurrentTexts();
+        for(const student of records) {
+            const row = tbody.insertRow();
+            const shortName = getShortName(student.fullName);
+            const nameCell = row.insertCell(0);
+            nameCell.innerHTML = `<span class="student-fullname">${escapeHtml(shortName)}</span>`;
+            for (let i = 0; i < SUBJECTS_COUNT; i++) {
+                const cell = row.insertCell(i+1);
+                const isPresent = student.present[i];
+                const statusText = isPresent ? 'Присутствовал(а)' : 'Отсутствовал(а)';
+                const badgeClass = isPresent ? 'badge-present' : 'badge-absent';
+                const subjectLabel = texts[i] ? `${i+1} пара — ${texts[i]}` : `${i+1} пара`;
+                cell.innerHTML = `<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; width:100%;">
+                                    <span class="mobile-subject-label">${escapeHtml(subjectLabel)}</span>
+                                    <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                                        <span class="${badgeClass}">${statusText}</span>
+                                        <div class="action-icons">
+                                            <button class="icon-btn add" data-fullname="${escapeHtml(student.fullName)}" data-subject="${i}">➕</button>
+                                            <button class="icon-btn remove" data-fullname="${escapeHtml(student.fullName)}" data-subject="${i}">➖</button>
+                                        </div>
+                                    </div>
+                                </div>`;
+            }
+        }
+        updateTableHeaders();
+        bindInlineButtons();
+    }
+
+    function setAttendanceStatus(fullName, subjectIdx, isPresent) {
+        const records = getCurrentRecords();
+        const student = records.find(s => s.fullName === fullName);
+        if(!student || student.present[subjectIdx] === isPresent) return false;
+        student.present[subjectIdx] = isPresent;
+        setCurrentRecords(records);
+        renderMainTable();
+        renderDraggableSummaries();
+        renderUniqueAttendance();
+        return true;
+    }
+
+    function updateSubjectText(idx, value) {
+        updateCurrentText(idx, value);
+        updateTableHeaders();
+        renderDraggableSummaries();
+    }
+
+    function updateDateField(idx, value) {
+        updateCurrentDate(idx, value);
+        renderDraggableSummaries();
+        renderUniqueAttendance(); // обновляем сводку, чтобы показать новую дату
+    }
+
+    let lastTapTime = 0;
+    window.handleTagClick = function(tagElement) {
+        const now = Date.now();
+        if (now - lastTapTime < 300) return;
+        lastTapTime = now;
+
+        const shortName = tagElement.getAttribute('data-name');
+        const subjectIdx = parseInt(tagElement.getAttribute('data-subject'));
+        const currentStatus = tagElement.getAttribute('data-status') === 'present';
+        
+        const fullName = shortToFull.get(shortName);
+        if (!fullName) return;
+        
+        const newStatus = !currentStatus;
+        const records = getCurrentRecords();
+        const student = records.find(s => s.fullName === fullName);
+        if (student && student.present[subjectIdx] !== newStatus) {
+            student.present[subjectIdx] = newStatus;
+            setCurrentRecords(records);
+            renderMainTable();
+            renderDraggableSummaries();
+            renderUniqueAttendance();
+            showToast(`${shortName} → ${newStatus ? 'присутствует' : 'отсутствует'}`, newStatus ? '#1f5e3a' : '#a13e3e');
+        }
+    };
+
+    function renderDraggableSummaries() {
+        const container = document.getElementById('summaryContainer');
+        if(!container) return;
+        const records = getCurrentRecords();
+        const texts = getCurrentTexts();
+        const dates = getCurrentDates();
+        let html = '';
+        for (let i = 0; i < SUBJECTS_COUNT; i++) {
+            const present = [], absent = [];
+            for(let s of records) {
+                const short = getShortName(s.fullName);
+                if(s.present[i]) present.push(short);
+                else absent.push(short);
+            }
+            
+            html += `<div class="summary-card" data-subject="${i}">
+                        <div class="card-header">
+                            <div class="title-section">
+                                <span class="title">${i+1} пара</span>
+                                <input type="text" class="subject-input" placeholder="Название..." value="${escapeHtml(texts[i])}" onchange="updateSubjectText(${i}, this.value)">
+                            </div>
+                            <div class="right-stats">
+                                <span class="counter">${present.length}/${FULL_STUDENT_LIST.length}</span>
+                                <input type="text" class="date-input" placeholder="ДД.ММ.ГГГГ" value="${escapeHtml(dates[i])}" onchange="updateDateField(${i}, this.value)">
+                            </div>
+                        </div>
+                        <div class="split-lists">
+                            <div class="present-block">
+                                <div class="present-title">✅ ПРИСУТСТВОВАЛ(А) <span class="count-badge">${present.length}</span></div>
+                                <div class="drop-zone" data-zone-type="present" data-subject="${i}">
+                                    ${present.length===0 ? '<div class="empty-message">— перетащите или нажмите —</div>' : present.map(n => `<span class="student-tag" draggable="true" data-name="${escapeHtml(n)}" data-subject="${i}" data-status="present" onclick="window.handleTagClick(this)">${escapeHtml(n)}</span>`).join('')}
+                                </div>
+                            </div>
+                            <div class="absent-block">
+                                <div class="absent-title">❌ ОТСУТСТВОВАЛ(А) <span class="count-badge">${absent.length}</span></div>
+                                <div class="drop-zone" data-zone-type="absent" data-subject="${i}">
+                                    ${absent.length===0 ? '<div class="empty-message">— перетащите или нажмите —</div>' : absent.map(n => `<span class="student-tag" draggable="true" data-name="${escapeHtml(n)}" data-subject="${i}" data-status="absent" onclick="window.handleTagClick(this)">${escapeHtml(n)}</span>`).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+        }
+        container.innerHTML = html;
+        attachDragAndDropEvents();
+    }
+
+    window.updateSubjectText = function(idx, value) {
+        updateCurrentText(idx, value);
+        updateTableHeaders();
+    };
+
+    window.updateDateField = function(idx, value) {
+        updateCurrentDate(idx, value);
+        renderUniqueAttendance();
+    };
+
+    let draggedItem = null;
+    function attachDragAndDropEvents() {
+        document.querySelectorAll('.student-tag').forEach(el => {
+            el.setAttribute('draggable', 'true');
+            el.ondragstart = e => {
+                draggedItem = {
+                    shortName: el.getAttribute('data-name'),
+                    subjectIdx: parseInt(el.getAttribute('data-subject')),
+                    sourceStatus: el.getAttribute('data-status')
+                };
+                e.dataTransfer.setData('text/plain', draggedItem.shortName);
+                el.style.opacity = '0.5';
+            };
+            el.ondragend = e => {
+                el.style.opacity = '';
+                draggedItem = null;
+                document.querySelectorAll('.drop-zone').forEach(z => z.classList.remove('drag-over'));
+            };
+        });
+        document.querySelectorAll('.drop-zone').forEach(zone => {
+            zone.ondragover = e => { e.preventDefault(); zone.classList.add('drag-over'); };
+            zone.ondragleave = e => zone.classList.remove('drag-over');
+            zone.ondrop = e => {
+                e.preventDefault();
+                zone.classList.remove('drag-over');
+                if(!draggedItem) return;
+                const targetType = zone.getAttribute('data-zone-type');
+                const targetSubject = parseInt(zone.getAttribute('data-subject'));
+                if(draggedItem.subjectIdx !== targetSubject) {
+                    showToast('Нельзя перемещать между разными парами', '#a13e3e');
+                    return;
+                }
+                if((draggedItem.sourceStatus === 'present' && targetType === 'present') || (draggedItem.sourceStatus === 'absent' && targetType === 'absent')) {
+                    showToast('Студент уже в этом списке', '#64748b');
+                    return;
+                }
+                const fullName = shortToFull.get(draggedItem.shortName);
+                if(!fullName) return;
+                const newStatus = targetType === 'present';
+                const records = getCurrentRecords();
+                const student = records.find(s => s.fullName === fullName);
+                if(student && student.present[draggedItem.subjectIdx] !== newStatus) {
+                    student.present[draggedItem.subjectIdx] = newStatus;
+                    setCurrentRecords(records);
+                    renderMainTable();
+                    renderDraggableSummaries();
+                    renderUniqueAttendance();
+                    showToast(`${draggedItem.shortName} теперь ${newStatus ? 'присутствует' : 'отсутствует'}`, newStatus ? '#1f5e3a' : '#a13e3e');
+                }
+            };
+        });
+    }
+
+    function showToast(msg, bg) {
+        let t = document.createElement('div');
         t.textContent = msg;
-        t.style.cssText = `position:fixed; bottom:20px; left:20px; right:20px; background:${isError ? '#a13e3e' : '#1f5e3a'}; color:white; padding:10px 20px; border-radius:60px; text-align:center; z-index:1000; font-size:0.8rem; box-shadow:0 4px 12px rgba(0,0,0,0.2);`;
+        t.style.cssText = `position:fixed; bottom:20px; left:20px; right:20px; background:${bg}; color:white; padding:12px 20px; border-radius:60px; font-size:0.8rem; z-index:1000; text-align:center; box-shadow:0 4px 12px rgba(0,0,0,0.2);`;
         document.body.appendChild(t);
         setTimeout(() => t.remove(), 2000);
     }
-    
-    async function loadData() {
-        try {
-            document.getElementById('syncStatus').textContent = '🔄 Загрузка данных...';
-            document.getElementById('syncStatus').className = 'status';
-            
-            // Загружаем посещаемость
-            const { data: attendance, error: attError } = await supabase
-                .from('attendance_records')
-                .select('student_name, subject_index, is_present')
-                .eq('day', currentDay);
-            
-            if (attError) throw attError;
-            
-            // Загружаем настройки предметов
-            const { data: settings, error: setError } = await supabase
-                .from('subject_settings')
-                .select('subject_index, subject_text, date_text')
-                .eq('day', currentDay);
-            
-            if (setError) throw setError;
-            
-            // Формируем attendanceData
-            attendanceData = {};
-            STUDENTS.forEach(student => { attendanceData[student] = [false, false, false, false]; });
-            attendance.forEach(rec => {
-                if (attendanceData[rec.student_name]) {
-                    attendanceData[rec.student_name][rec.subject_index] = rec.is_present;
-                }
-            });
-            
-            // Формируем subjectTexts и dateTexts
-            subjectTexts = {};
-            dateTexts = {};
-            settings.forEach(set => {
-                subjectTexts[set.subject_index] = set.subject_text || '';
-                dateTexts[set.subject_index] = set.date_text || '';
-            });
-            
-            document.getElementById('syncStatus').textContent = '✅ Данные загружены';
-            setTimeout(() => { if (document.getElementById('syncStatus').textContent === '✅ Данные загружены') document.getElementById('syncStatus').textContent = 'Готово'; }, 1500);
-            renderAll();
-        } catch(e) {
-            console.error(e);
-            document.getElementById('syncStatus').textContent = '❌ Ошибка подключения к Supabase';
-            document.getElementById('syncStatus').className = 'status error';
-            showToast('Ошибка загрузки данных. Проверьте настройки Supabase.', true);
-        }
-    }
-    
-    async function updateAttendance(fullName, subjectIdx, isPresent) {
-        try {
-            const { error } = await supabase
-                .from('attendance_records')
-                .update({ is_present: isPresent, updated_at: new Date() })
-                .eq('day', currentDay)
-                .eq('subject_index', subjectIdx)
-                .eq('student_name', fullName);
-            
-            if (error) throw error;
-            
-            if (attendanceData[fullName]) attendanceData[fullName][subjectIdx] = isPresent;
-            renderAll();
-            showToast(`${getShortName(fullName)} → ${isPresent ? 'присутствует' : 'отсутствует'}`);
-        } catch(e) {
-            showToast('Ошибка сохранения', true);
-        }
-    }
-    
-    async function updateSubjectText(subjectIdx, value) {
-        subjectTexts[subjectIdx] = value;
-        try {
-            const { error } = await supabase
-                .from('subject_settings')
-                .upsert({ 
-                    day: currentDay, 
-                    subject_index: subjectIdx, 
-                    subject_text: value,
-                    updated_at: new Date()
-                }, { onConflict: 'day, subject_index' });
-            if (error) throw error;
-            renderAll();
-        } catch(e) { showToast('Ошибка сохранения названия', true); }
-    }
-    
-    async function updateDateField(subjectIdx, value) {
-        dateTexts[subjectIdx] = value;
-        try {
-            const { error } = await supabase
-                .from('subject_settings')
-                .upsert({ 
-                    day: currentDay, 
-                    subject_index: subjectIdx, 
-                    date_text: value,
-                    updated_at: new Date()
-                }, { onConflict: 'day, subject_index' });
-            if (error) throw error;
-            renderAll();
-        } catch(e) { showToast('Ошибка сохранения даты', true); }
-    }
-    
-    async function resetDay() {
-        if (!confirm(`Сбросить все отметки для ${DAYS_FULL[currentDay]}?`)) return;
-        try {
-            const updates = STUDENTS.map(student => ({
-                day: currentDay,
-                subject_index: 0,
-                student_name: student,
-                is_present: false,
-                updated_at: new Date()
-            }));
-            // Обновляем все 4 предмета для каждого студента
-            for (let i = 0; i < 4; i++) {
-                for (let student of STUDENTS) {
-                    await supabase
-                        .from('attendance_records')
-                        .update({ is_present: false, updated_at: new Date() })
-                        .eq('day', currentDay)
-                        .eq('subject_index', i)
-                        .eq('student_name', student);
-                }
-            }
-            await loadData();
-            showToast(`Посещаемость для ${DAYS_FULL[currentDay]} сброшена`);
-        } catch(e) { showToast('Ошибка сброса', true); }
-    }
-    
-    async function toggleTag(shortName, subjectIdx, wasPresent) {
-        for (const fullName of STUDENTS) {
-            if (getShortName(fullName) === shortName) {
-                await updateAttendance(fullName, subjectIdx, !wasPresent);
-                break;
-            }
-        }
-    }
-    
-    function renderWeekdays() {
-        const bar = document.getElementById('weekdaysBar');
-        bar.innerHTML = '';
-        Object.keys(DAYS).forEach(day => {
-            const btn = document.createElement('button');
-            btn.textContent = DAYS[day];
-            btn.className = `day-btn ${currentDay === day ? 'active' : ''}`;
-            btn.onclick = async () => { currentDay = day; await loadData(); renderWeekdays(); };
-            bar.appendChild(btn);
+
+    function bindInlineButtons() {
+        document.querySelectorAll('.icon-btn.add').forEach(btn => {
+            btn.onclick = () => setAttendanceStatus(btn.getAttribute('data-fullname'), parseInt(btn.getAttribute('data-subject')), true);
         });
-        const resetBtn = document.createElement('button');
-        resetBtn.textContent = '⟳ Сбросить день';
-        resetBtn.className = 'reset-btn';
-        resetBtn.onclick = resetDay;
-        bar.appendChild(resetBtn);
+        document.querySelectorAll('.icon-btn.remove').forEach(btn => {
+            btn.onclick = () => setAttendanceStatus(btn.getAttribute('data-fullname'), parseInt(btn.getAttribute('data-subject')), false);
+        });
     }
-    
-    function renderTable() {
-        const header = document.getElementById('tableHeader');
-        header.innerHTML = '<th>👥 Студент</th>';
-        for (let i = 0; i < 4; i++) {
-            header.innerHTML += `<th>${i+1} пара ${subjectTexts[i] ? `— ${escapeHtml(subjectTexts[i])}` : ''}</th>`;
+
+    function resetCurrentDay() {
+        if(confirm(`Сбросить все отметки для ${DAY_FULL[currentDay]}?`)) {
+            const records = getCurrentRecords();
+            for(let s of records) {
+                for(let i=0; i<SUBJECTS_COUNT; i++) s.present[i] = false;
+            }
+            setCurrentRecords(records);
+            renderMainTable();
+            renderDraggableSummaries();
+            renderUniqueAttendance();
+            showToast(`✨ Посещаемость для ${DAY_FULL[currentDay]} сброшена`, '#2c3e5c');
         }
-        const tbody = document.getElementById('tableBody');
-        tbody.innerHTML = '';
-        for (const fullName of STUDENTS) {
-            const presents = attendanceData[fullName] || [false, false, false, false];
-            const row = tbody.insertRow();
-            row.insertCell(0).innerHTML = `<strong class="student-name">${escapeHtml(getShortName(fullName))}</strong>`;
-            for (let i = 0; i < 4; i++) {
-                const isPresent = presents[i];
-                const cell = row.insertCell(i+1);
-                cell.innerHTML = `<div style="text-align:center">
-                    <span class="badge ${isPresent ? 'present' : 'absent'}">${isPresent ? 'Присутствовал(а)' : 'Отсутствовал(а)'}</span>
-                    <div class="action-icons">
-                        <button class="icon-btn" onclick="window.updateAttendance('${escapeHtml(fullName)}', ${i}, true)">➕</button>
-                        <button class="icon-btn" onclick="window.updateAttendance('${escapeHtml(fullName)}', ${i}, false)">➖</button>
-                    </div>
-                </div>`;
+    }
+
+    function clearAllData() {
+        if(confirm('Очистить ВСЕ сохранённые данные (все дни недели)? Это удалит все отметки, названия и даты.')) {
+            localStorage.removeItem(STORAGE_KEY);
+            for (let day of DAYS) {
+                dataByDay[day].records = FULL_STUDENT_LIST.map(fullName => ({ fullName, present: Array(SUBJECTS_COUNT).fill(false) }));
+                dataByDay[day].texts = ["", "", "", ""];
+                dataByDay[day].dates = ["", "", "", ""];
+            }
+            renderMainTable();
+            renderDraggableSummaries();
+            renderUniqueAttendance();
+            updateTableHeaders();
+            showToast('🗑 Все данные очищены', '#8b3c3c');
+        }
+    }
+
+    function switchDay(day) {
+        currentDay = day;
+        document.querySelectorAll('.day-btn').forEach(btn => {
+            if (btn.getAttribute('data-day') === day) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+        renderMainTable();
+        renderDraggableSummaries();
+        renderUniqueAttendance();
+        updateTableHeaders();
+        
+        const select = document.getElementById('subjectPairSelect');
+        if (select) {
+            select.innerHTML = '';
+            for (let i = 0; i < SUBJECTS_COUNT; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = `${i+1} пара`;
+                select.appendChild(option);
             }
         }
     }
-    
-    function renderSummaries() {
-        const container = document.getElementById('summaryContainer');
-        let html = '';
-        for (let i = 0; i < 4; i++) {
-            const present = [], absent = [];
-            for (const fullName of STUDENTS) {
-                const short = getShortName(fullName);
-                const isPresent = attendanceData[fullName]?.[i] || false;
-                if (isPresent) present.push(short);
-                else absent.push(short);
-            }
-            const dateValue = dateTexts[i] || '';
-            const subjectValue = subjectTexts[i] || '';
-            html += `<div class="summary-card">
-                <div class="card-header">
-                    <div><strong>${i+1} пара</strong> <input class="subject-input" value="${escapeHtml(subjectValue)}" placeholder="Название..." onchange="updateSubjectText(${i}, this.value)"></div>
-                    <div><span class="badge present" style="background:white; color:#15803d;">${present.length}/20</span>
-                    <input class="date-input" value="${escapeHtml(dateValue)}" placeholder="ДД.ММ.ГГГГ" onchange="updateDateField(${i}, this.value)"></div>
-                </div>
-                <div class="split-lists">
-                    <div class="present-block">
-                        <div class="section-title" style="color:#15803d;">✅ ПРИСУТСТВОВАЛ(А) <span class="count-badge">${present.length}</span></div>
-                        <div class="drop-zone">${present.length ? present.map(n => `<span class="student-tag" onclick="toggleTag('${escapeHtml(n)}', ${i}, true)">${escapeHtml(n)}</span>`).join('') : '<div class="empty-message">— перетащите или нажмите —</div>'}</div>
-                    </div>
-                    <div class="absent-block">
-                        <div class="section-title" style="color:#b91c1c;">❌ ОТСУТСТВОВАЛ(А) <span class="count-badge">${absent.length}</span></div>
-                        <div class="drop-zone">${absent.length ? absent.map(n => `<span class="student-tag" onclick="toggleTag('${escapeHtml(n)}', ${i}, false)">${escapeHtml(n)}</span>`).join('') : '<div class="empty-message">— перетащите или нажмите —</div>'}</div>
-                    </div>
-                </div>
-            </div>`;
-        }
-        container.innerHTML = html;
+
+    function initPanelControls() {
+        const presentBtn = document.getElementById('markPresentBtn');
+        const absentBtn = document.getElementById('markAbsentBtn');
+        const nameInput = document.getElementById('studentNameField');
+        const subjectSelect = document.getElementById('subjectPairSelect');
+        presentBtn.onclick = () => {
+            let raw = nameInput.value.trim();
+            if(!raw) { alert('Введите фамилию и имя'); return; }
+            let full = findFullByInput(raw);
+            if(!full) { alert(`Студент "${raw}" не найден`); return; }
+            let subjectIdx = parseInt(subjectSelect.value);
+            setAttendanceStatus(full, subjectIdx, true);
+            nameInput.value = getShortName(full);
+        };
+        absentBtn.onclick = () => {
+            let raw = nameInput.value.trim();
+            if(!raw) { alert('Введите фамилию и имя'); return; }
+            let full = findFullByInput(raw);
+            if(!full) { alert(`Студент "${raw}" не найден`); return; }
+            let subjectIdx = parseInt(subjectSelect.value);
+            setAttendanceStatus(full, subjectIdx, false);
+            nameInput.value = getShortName(full);
+        };
     }
-    
-    function renderAll() { renderTable(); renderSummaries(); }
-    
-    function escapeHtml(str) { return String(str).replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])); }
-    
-    window.updateAttendance = updateAttendance;
-    window.updateSubjectText = updateSubjectText;
-    window.updateDateField = updateDateField;
-    window.toggleTag = toggleTag;
-    
-    renderWeekdays();
-    loadData();
+
+    function findFullByInput(input) {
+        let t = input.trim();
+        if(shortToFull.has(t)) return shortToFull.get(t);
+        let lower = t.toLowerCase();
+        let match = SHORT_NAMES_LIST.find(n => n.toLowerCase() === lower);
+        if(match) return shortToFull.get(match);
+        let partial = SHORT_NAMES_LIST.filter(n => n.toLowerCase().includes(lower));
+        return partial.length === 1 ? shortToFull.get(partial[0]) : null;
+    }
+
+    function populateDatalist() {
+        let dl = document.getElementById('studentsDatalist');
+        if(dl) {
+            dl.innerHTML = '';
+            SHORT_NAMES_LIST.forEach(n => {
+                let opt = document.createElement('option');
+                opt.value = n;
+                dl.appendChild(opt);
+            });
+        }
+    }
+
+    function escapeHtml(str) {
+        return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
+    }
+
+    function init() {
+        initData();
+        populateDatalist();
+        renderMainTable();
+        renderDraggableSummaries();
+        renderUniqueAttendance();
+        updateTableHeaders();
+        initPanelControls();
+        
+        document.querySelectorAll('.day-btn').forEach(btn => {
+            btn.addEventListener('click', () => switchDay(btn.getAttribute('data-day')));
+        });
+        
+        document.getElementById('globalResetBtn').addEventListener('click', resetCurrentDay);
+        document.getElementById('clearStorageBtn').addEventListener('click', clearAllData);
+        switchDay('mon');
+    }
+    document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
 </html>
