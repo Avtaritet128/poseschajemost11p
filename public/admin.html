@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Админ-панель | Журнал посещаемости</title>
+    <style>
+        * { box-sizing: border-box; font-family: system-ui, sans-serif; }
+        body { background: #0f172a; margin: 0; padding: 20px; color: #e2e8f0; }
+        .container { max-width: 1400px; margin: 0 auto; }
+        h1 { color: #38bdf8; }
+        .card { background: #1e293b; border-radius: 24px; padding: 20px; margin-bottom: 20px; border: 1px solid #334155; }
+        .card h2 { margin-top: 0; font-size: 1.2rem; color: #94a3b8; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+        th, td { padding: 8px; text-align: left; border-bottom: 1px solid #334155; }
+        th { background: #0f172a; color: #94a3b8; }
+        .present { color: #4ade80; }
+        .absent { color: #f87171; }
+        .log-entry { font-size: 0.75rem; padding: 6px; border-bottom: 1px solid #334155; font-family: monospace; }
+        button { background: #3b82f6; color: white; border: none; padding: 10px 20px; border-radius: 40px; cursor: pointer; margin-right: 10px; margin-top: 10px; }
+        button.danger { background: #ef4444; }
+        button.warning { background: #f59e0b; }
+        .flex { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
+        pre { background: #0f172a; padding: 10px; border-radius: 12px; overflow-x: auto; font-size: 0.7rem; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>📊 Админ-панель журнала посещаемости</h1>
+    <div class="card">
+        <h2>🔄 Управление данными</h2>
+        <div class="flex">
+            <button onclick="refreshData()">🔄 Обновить</button>
+            <button class="danger" onclick="clearLogs()">🗑 Очистить логи</button>
+            <button class="warning" onclick="fullReset()">⚠️ ПОЛНЫЙ СБРОС ВСЕХ ДАННЫХ</button>
+        </div>
+    </div>
+    <div class="card">
+        <h2>📋 Все отметки посещаемости</h2>
+        <div style="overflow-x: auto;"><table id="attendanceTable"><thead><tr><th>День</th><th>Предмет</th><th>Студент</th><th>Статус</th><th>Обновлено</th></tr></thead><tbody></tbody></table></div>
+    </div>
+    <div class="card">
+        <h2>⚙️ Настройки предметов и дат</h2>
+        <table id="settingsTable"><thead><tr><th>День</th><th>Предмет</th><th>Название</th><th>Дата</th></tr></thead><tbody></tbody></table>
+    </div>
+    <div class="card">
+        <h2>📜 Логи действий пользователей</h2>
+        <div id="logsContainer" style="max-height: 400px; overflow-y: auto;"></div>
+    </div>
+</div>
+
+<script>
+    const API_URL = window.location.origin;
+
+    async function refreshData() {
+        try {
+            const res = await fetch(`${API_URL}/api/admin/all`);
+            const data = await res.json();
+            renderAttendance(data.attendance);
+            renderSettings(data.settings);
+            renderLogs(data.logs);
+        } catch(e) { alert('Ошибка загрузки данных'); }
+    }
+
+    function renderAttendance(attendance) {
+        const tbody = document.querySelector('#attendanceTable tbody');
+        tbody.innerHTML = '';
+        const dayNames = { mon: 'ПН', tue: 'ВТ', wed: 'СР', thu: 'ЧТ', fri: 'ПТ' };
+        attendance.forEach(row => {
+            const tr = tbody.insertRow();
+            tr.insertCell(0).textContent = dayNames[row.day] || row.day;
+            tr.insertCell(1).textContent = `${row.subject_index+1} пара`;
+            tr.insertCell(2).textContent = row.student_name.split(' ').slice(0,2).join(' ');
+            tr.insertCell(3).innerHTML = row.is_present ? '<span class="present">✅ Присутствовал</span>' : '<span class="absent">❌ Отсутствовал</span>';
+            tr.insertCell(4).textContent = new Date(row.updated_at).toLocaleString();
+        });
+    }
+
+    function renderSettings(settings) {
+        const tbody = document.querySelector('#settingsTable tbody');
+        tbody.innerHTML = '';
+        const dayNames = { mon: 'ПН', tue: 'ВТ', wed: 'СР', thu: 'ЧТ', fri: 'ПТ' };
+        settings.forEach(row => {
+            const tr = tbody.insertRow();
+            tr.insertCell(0).textContent = dayNames[row.day] || row.day;
+            tr.insertCell(1).textContent = `${row.subject_index+1} пара`;
+            tr.insertCell(2).textContent = row.subject_text || '—';
+            tr.insertCell(3).textContent = row.date_text || '—';
+        });
+    }
+
+    function renderLogs(logs) {
+        const container = document.getElementById('logsContainer');
+        container.innerHTML = logs.map(log => `<div class="log-entry">[${new Date(log.created_at).toLocaleString()}] ${log.action}: ${log.details} | IP: ${log.ip || '—'}</div>`).join('') || '<div class="log-entry">Нет логов</div>';
+    }
+
+    async function clearLogs() {
+        if (confirm('Очистить все логи?')) {
+            await fetch(`${API_URL}/api/admin/clear-logs`, { method: 'POST' });
+            refreshData();
+        }
+    }
+
+    async function fullReset() {
+        if (confirm('⚠️ ПОЛНЫЙ СБРОС ВСЕХ ДАННЫХ! Это удалит все отметки, названия и даты. Вы уверены?')) {
+            await fetch(`${API_URL}/api/admin/full-reset`, { method: 'POST' });
+            refreshData();
+            alert('Все данные сброшены');
+        }
+    }
+
+    refreshData();
+    setInterval(refreshData, 30000);
+</script>
+</body>
+</html>
