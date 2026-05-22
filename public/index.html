@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+=<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Журнал посещаемости | Supabase синхронизация</title>
+    <title>Журнал посещаемости | Supabase</title>
     <style>
         * { box-sizing: border-box; font-family: system-ui, sans-serif; }
         body { background: #eef2f8; margin: 0; padding: 16px; }
@@ -54,7 +54,7 @@
     <div id="syncStatus" class="status">🔄 Подключение к Supabase...</div>
     <div class="two-columns">
         <div class="table-container">
-            <table id="mainTable"><thead><tr id="tableHeader"><tr></thead><tbody id="tableBody"></tbody></table>
+            <table id="mainTable"><thead><tr id="tableHeader"></td></thead><tbody id="tableBody"></tbody></table>
         </div>
         <div class="summary-container" id="summaryContainer"></div>
     </div>
@@ -68,8 +68,8 @@
 
 <script>
     // ========== ВАШИ КЛЮЧИ SUPABASE (ЗАМЕНИТЕ!) ==========
-    const SUPABASE_URL = 'https://ВАШ_ПРОЕКТ.supabase.co';  // Вставьте ваш URL
-    const SUPABASE_ANON_KEY = 'ВАШ_ANON_KEY';               // Вставьте ваш anon key
+    const SUPABASE_URL = 'https://zkm-itre-ubdb0-cuvf5-mp0lw.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_ZkmITreUbdbOCuVF5Mp0lw_H8dbnovf';
     // =====================================================
 
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -119,21 +119,25 @@
             
             attendanceData = {};
             STUDENTS.forEach(s => { attendanceData[s] = [false, false, false, false]; });
-            attendance.forEach(rec => { if (attendanceData[rec.student_name]) attendanceData[rec.student_name][rec.subject_index] = rec.is_present; });
+            if (attendance) {
+                attendance.forEach(rec => { if (attendanceData[rec.student_name]) attendanceData[rec.student_name][rec.subject_index] = rec.is_present; });
+            }
             
             subjectTexts = {};
             dateTexts = {};
-            settings.forEach(set => {
-                subjectTexts[set.subject_index] = set.subject_text || '';
-                dateTexts[set.subject_index] = set.date_text || '';
-            });
+            if (settings) {
+                settings.forEach(set => {
+                    subjectTexts[set.subject_index] = set.subject_text || '';
+                    dateTexts[set.subject_index] = set.date_text || '';
+                });
+            }
             
             document.getElementById('syncStatus').textContent = '✅ Готово';
             renderAll();
         } catch(e) {
-            document.getElementById('syncStatus').textContent = '❌ Ошибка';
+            document.getElementById('syncStatus').textContent = '❌ Ошибка подключения';
             document.getElementById('syncStatus').classList.add('error');
-            showToast('Ошибка загрузки данных', true);
+            showToast('Ошибка загрузки данных. Проверьте таблицы в Supabase.', true);
         }
     }
     
@@ -149,7 +153,7 @@
             if (attendanceData[fullName]) attendanceData[fullName][subjectIdx] = isPresent;
             renderAll();
             showToast(`${getShortName(fullName)} → ${isPresent ? 'присутствует' : 'отсутствует'}`);
-        } catch(e) { showToast('Ошибка', true); }
+        } catch(e) { showToast('Ошибка сохранения', true); }
     }
     
     async function updateSubjectText(idx, value) {
