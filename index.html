@@ -2,115 +2,366 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Журнал посещаемости</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>Журнал посещаемости | Мобильная версия</title>
     <style>
         * {
             box-sizing: border-box;
-            font-family: system-ui, -apple-system, 'Segoe UI', 'Roboto', sans-serif;
+            font-family: system-ui, -apple-system, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
+
         body {
             background: #eef2f8;
             margin: 0;
-            padding: 16px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            padding: 12px;
             min-height: 100vh;
         }
+
         .main-dashboard {
-            max-width: 1600px;
-            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
             background: white;
-            border-radius: 32px;
-            box-shadow: 0 20px 40px -12px rgba(0,0,0,0.15);
+            border-radius: 28px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
             overflow: hidden;
         }
+
+        /* Шапка */
         .journal-header {
             background: #0f2b3d;
-            padding: 1.2rem 1.5rem;
+            padding: 1rem 1.2rem;
             color: white;
         }
-        .journal-header h1 { margin: 0; font-size: 1.5rem; }
-        .journal-header p { margin: 0.4rem 0 0; opacity: 0.8; font-size: 0.8rem; }
+        .journal-header h1 {
+            margin: 0;
+            font-size: 1.4rem;
+            font-weight: 650;
+        }
+        .journal-header p {
+            margin: 0.3rem 0 0;
+            opacity: 0.8;
+            font-size: 0.7rem;
+        }
+
+        /* Дни недели — горизонтальный скролл */
         .weekdays-bar {
             background: #f8fafc;
-            padding: 0.8rem 1.2rem;
+            padding: 0.8rem;
             display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            justify-content: center;
+            gap: 8px;
+            overflow-x: auto;
+            white-space: nowrap;
+            scrollbar-width: thin;
             border-bottom: 1px solid #e4e9f0;
+        }
+        .weekdays-bar::-webkit-scrollbar {
+            height: 3px;
         }
         .day-btn {
             background: #f1f5f9;
             border: 1px solid #cbd5e6;
-            padding: 8px 20px;
+            padding: 8px 18px;
             border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .day-btn.active {
+            background: #1f3b4c;
+            color: white;
+            border-color: #1f3b4c;
+        }
+
+        /* Кнопки действий под днями */
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            padding: 0.8rem;
+            background: #ffffff;
+            border-bottom: 1px solid #e4e9f0;
+        }
+        .reset-btn, .clear-btn {
+            flex: 1;
+            background: #f1f5f9;
+            border: 1px solid #cbd5e6;
+            padding: 10px;
+            border-radius: 40px;
+            font-weight: 500;
+            font-size: 0.8rem;
+            cursor: pointer;
+            text-align: center;
+        }
+        .clear-btn {
+            background: #fff1f0;
+            border-color: #fbc4c1;
+            color: #b13e3e;
+        }
+
+        /* Блок "Все, кто был хотя бы на одной паре" */
+        .unique-attendance-block {
+            background: #fef9e6;
+            border: 1px solid #ffe5b4;
+            border-radius: 20px;
+            padding: 0.8rem;
+            margin: 0.8rem;
+        }
+        .unique-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #ffdd99;
+            padding-bottom: 6px;
+        }
+        .unique-header h3 {
+            margin: 0;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #8a6e2f;
+        }
+        .unique-date {
+            font-size: 0.7rem;
+            background: #ffefcf;
+            padding: 3px 10px;
+            border-radius: 40px;
+            color: #a07c2e;
+        }
+        .unique-count {
+            background: #ffefcf;
+            padding: 3px 10px;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #a07c2e;
+        }
+        .unique-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+        .unique-student-tag {
+            background: #fff5e0;
+            border: 1px solid #ffdb9e;
+            padding: 5px 12px;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: #5e4a1e;
+        }
+        .empty-unique {
+            color: #b88b3a;
+            font-style: italic;
+            font-size: 0.75rem;
+            padding: 10px;
+            text-align: center;
+        }
+
+        /* Карточки студентов (вместо таблицы) */
+        .students-list {
+            padding: 0.8rem;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .student-card {
+            background: white;
+            border-radius: 20px;
+            border: 1px solid #e9edf2;
+            padding: 12px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+        }
+        .student-name {
+            font-weight: 700;
+            font-size: 1rem;
+            color: #0a1c2f;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #eef2f8;
+            margin-bottom: 8px;
+        }
+        .subjects-row {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .subject-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 4px 0;
+        }
+        .subject-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #2c5a7a;
+            background: #eef2ff;
+            padding: 4px 10px;
+            border-radius: 30px;
+            min-width: 95px;
+            text-align: center;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 32px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            min-width: 105px;
+            text-align: center;
+        }
+        .status-present { background: #dcfce7; color: #15803d; }
+        .status-absent { background: #fee9e6; color: #b91c1c; }
+        .student-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .student-icon-btn {
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            border-radius: 30px;
+            padding: 5px 14px;
+            font-size: 0.7rem;
             font-weight: 600;
             cursor: pointer;
         }
-        .day-btn.active { background: #1f3b4c; color: white; border-color: #1f3b4c; }
-        .reset-btn {
-            background: #f1f5f9;
-            border: 1px solid #cbd5e6;
-            padding: 8px 20px;
-            border-radius: 40px;
-            cursor: pointer;
-            margin-left: 10px;
+        .add-btn { background: #e6f7e6; color: #2b6e2f; }
+        .remove-btn { background: #ffe6e5; color: #b13e3e; }
+
+        /* Сводные карточки (правые) */
+        .summary-container {
+            padding: 0.8rem;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
-        .two-columns { display: flex; flex-wrap: wrap; gap: 24px; padding: 1.5rem; }
-        .table-container { flex: 2; overflow-x: auto; }
-        .summary-container { flex: 1.4; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-        th, td { padding: 10px 8px; border-bottom: 1px solid #e2e8f0; text-align: left; }
-        .student-name { font-weight: 600; white-space: nowrap; }
-        .badge { display: inline-block; padding: 4px 12px; border-radius: 32px; font-size: 0.7rem; font-weight: 600; min-width: 110px; text-align: center; }
-        .present { background: #dcfce7; color: #15803d; }
-        .absent { background: #fee9e6; color: #b91c1c; }
-        .action-icons { display: flex; gap: 6px; margin-top: 5px; justify-content: center; }
-        .icon-btn { background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 30px; padding: 3px 10px; font-size: 0.65rem; cursor: pointer; }
-        .summary-card { background: #fff; border: 1px solid #e9edf2; border-radius: 24px; margin-bottom: 16px; overflow: hidden; }
-        .card-header { background: #f1f5f9; padding: 10px 16px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; border-bottom: 1px solid #e2e8f0; }
-        .subject-input { padding: 4px 10px; border-radius: 60px; border: 1px solid #cbd5e1; font-size: 0.8rem; width: 150px; }
-        .date-input { padding: 4px 10px; border-radius: 60px; border: 1px solid #cbd5e1; font-size: 0.7rem; width: 100px; text-align: center; }
-        .split-lists { padding: 12px; }
-        .section-title { font-weight: 600; font-size: 0.75rem; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
-        .student-tag { background: #f8fafc; padding: 5px 12px; border-radius: 40px; font-size: 0.75rem; display: inline-block; margin: 4px 6px 4px 0; border: 1px solid #cbd5e1; cursor: pointer; }
-        .drop-zone { min-height: 65px; padding: 6px; background: #fafcff; border-radius: 16px; }
-        .empty-message { color: #94a3b8; font-style: italic; font-size: 0.7rem; text-align: center; padding: 12px; }
-        .legend-bottom { display: flex; gap: 20px; justify-content: center; padding: 1rem; background: #f9fbfd; border-top: 1px solid #e4e9f0; font-size: 0.7rem; flex-wrap: wrap; }
-        @media (max-width: 768px) { .two-columns { flex-direction: column; } .subject-input { width: 120px; } }
+        .summary-card {
+            background: #fefefe;
+            border: 1px solid #e9edf2;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+        .card-header {
+            background: #f1f5f9;
+            padding: 10px 12px;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .subject-input {
+            padding: 6px 10px;
+            border-radius: 60px;
+            border: 1px solid #cbd5e1;
+            font-size: 0.75rem;
+            background: white;
+            width: 130px;
+        }
+        .date-input {
+            padding: 6px 10px;
+            border-radius: 60px;
+            border: 1px solid #cbd5e1;
+            font-size: 0.7rem;
+            width: 95px;
+            text-align: center;
+        }
+        .split-lists { padding: 10px; }
+        .section-title {
+            font-weight: 600;
+            font-size: 0.7rem;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .count-badge {
+            background: white;
+            border-radius: 40px;
+            padding: 2px 8px;
+            font-size: 0.65rem;
+        }
+        .student-tag {
+            background: #f8fafc;
+            padding: 6px 12px;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            display: inline-block;
+            margin: 4px 6px 4px 0;
+            border: 1px solid #cbd5e1;
+            cursor: pointer;
+        }
+        .empty-message {
+            color: #94a3b8;
+            font-style: italic;
+            font-size: 0.7rem;
+            text-align: center;
+            padding: 10px;
+        }
+
+        /* Легенда */
+        .legend-bottom {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            padding: 0.8rem;
+            background: #f9fbfd;
+            border-top: 1px solid #e4e9f0;
+            font-size: 0.65rem;
+        }
+
+        /* Утилиты */
+        .hidden { display: none; }
+        @media (max-width: 480px) {
+            .subject-label { min-width: 85px; font-size: 0.65rem; }
+            .status-badge { min-width: 95px; font-size: 0.65rem; }
+            .student-icon-btn { padding: 5px 10px; }
+        }
     </style>
 </head>
 <body>
 <div class="main-dashboard">
     <div class="journal-header">
         <h1>📋 Журнал посещаемости</h1>
-        <p>Пн–Пт · 4 пары · Нажмите на имя — измените статус · Данные сохраняются в браузере</p>
+        <p>Нажмите на имя в списке — измените статус</p>
     </div>
+
+    <!-- Дни недели -->
     <div class="weekdays-bar" id="weekdaysBar"></div>
-    <div class="two-columns">
-        <div class="table-container">
-            <table id="mainTable">
-                <thead id="tableHeader"><tr id="headerRow"><th>👥 Студент</th><th>1 пара</th><th>2 пара</th><th>3 пара</th><th>4 пара</th></tr></thead>
-                <tbody id="tableBody"></tbody>
-            </table>
-        </div>
-        <div class="summary-container" id="summaryContainer"></div>
+
+    <!-- Кнопки действий -->
+    <div class="action-buttons">
+        <button class="reset-btn" id="resetDayBtn">⟳ Сбросить день</button>
+        <button class="clear-btn" id="clearAllBtn">🗑 Очистить всё</button>
     </div>
+
+    <!-- Блок "Все, кто был хотя бы на одной паре" -->
+    <div id="uniqueAttendanceBlock"></div>
+
+    <!-- Список студентов (карточки) -->
+    <div class="students-list" id="studentsList"></div>
+
+    <!-- Сводки по предметам -->
+    <div class="summary-container" id="summaryContainer"></div>
+
     <div class="legend-bottom">
         <span>🟢 Присутствовал(а)</span>
         <span>🔴 Отсутствовал(а)</span>
-        <span>🖱️ Нажмите на имя — измените статус</span>
-        <span>📝 Пишите в полях — название и дата сохранятся</span>
-        <span>💾 Автосохранение в браузере</span>
+        <span>👆 Нажмите на имя в списке</span>
+        <span>💾 Сохраняется в браузере</span>
     </div>
 </div>
 
 <script>
-    // 19 студентов (Викторов удалён)
-    const STUDENTS = [
+    // ==================== ДАННЫЕ ====================
+    const STUDENTS_FULL = [
         "Аношин Михаил Александрович","Богданович Андрей Сергеевич","Бодров Максим Вячеславович",
         "Гневанов Арсений Данилович","Громов Денис Алексеевич",
         "Жороев Мухаммад Кудуратович","Зуев Андрей Алексеевич","Кулешов Матвей Сергеевич",
@@ -119,28 +370,27 @@
         "Семянченков Руслан Ихтиёрович","Хохлов Егор Андреевич","Цаплин Иван Николаевич",
         "Шалагин Артём Алексеевич","Яничев Егор Андреевич"
     ];
-    const STUDENTS_COUNT = STUDENTS.length;
+    const STUDENTS_COUNT = STUDENTS_FULL.length;
     const SUBJECTS_COUNT = 4;
     const DAYS = ['mon', 'tue', 'wed', 'thu', 'fri'];
     const DAY_NAMES = { mon: 'ПН', tue: 'ВТ', wed: 'СР', thu: 'ЧТ', fri: 'ПТ' };
     const DAY_FULL = { mon: 'Понедельник', tue: 'Вторник', wed: 'Среда', thu: 'Четверг', fri: 'Пятница' };
     
     let currentDay = 'mon';
-    let attendanceData = {};      // { day: { studentName: [present0, present1, present2, present3] } }
-    let subjectTexts = {};        // { day: { 0: "текст", 1: "текст", ... } }
-    let dateTexts = {};           // { day: { 0: "дата", 1: "дата", ... } }
+    let attendanceData = {};      // { day: { studentName: [p0,p1,p2,p3] } }
+    let subjectTexts = {};        // { day: { 0: "", 1: "", ... } }
+    let dateTexts = {};           // { day: { 0: "", 1: "", ... } }
     
-    const STORAGE_KEY = 'attendance_local';
+    const STORAGE_KEY = 'attendance_mobile_v1';
     
     function getShortName(full) { let p = full.split(/\s+/); return p.length >= 2 ? `${p[0]} ${p[1]}` : full; }
     
     function saveToLocalStorage() {
-        const data = {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
             attendance: attendanceData,
             subjectTexts: subjectTexts,
             dateTexts: dateTexts
-        };
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        }));
     }
     
     function loadFromLocalStorage() {
@@ -157,26 +407,22 @@
     
     function initData() {
         if (!loadFromLocalStorage()) {
-            // Инициализация пустыми данными
-            attendanceData = {};
-            subjectTexts = {};
-            dateTexts = {};
             for (let day of DAYS) {
                 attendanceData[day] = {};
                 subjectTexts[day] = { 0: "", 1: "", 2: "", 3: "" };
                 dateTexts[day] = { 0: "", 1: "", 2: "", 3: "" };
-                for (let student of STUDENTS) {
+                for (let student of STUDENTS_FULL) {
                     attendanceData[day][student] = [false, false, false, false];
                 }
             }
             saveToLocalStorage();
         }
-        // Проверяем, что для всех дней есть данные
+        // Проверка и заполнение недостающих
         for (let day of DAYS) {
             if (!attendanceData[day]) attendanceData[day] = {};
             if (!subjectTexts[day]) subjectTexts[day] = { 0: "", 1: "", 2: "", 3: "" };
             if (!dateTexts[day]) dateTexts[day] = { 0: "", 1: "", 2: "", 3: "" };
-            for (let student of STUDENTS) {
+            for (let student of STUDENTS_FULL) {
                 if (!attendanceData[day][student]) attendanceData[day][student] = [false, false, false, false];
             }
             for (let i = 0; i < SUBJECTS_COUNT; i++) {
@@ -191,9 +437,7 @@
     function getCurrentDateTexts() { return dateTexts[currentDay]; }
     
     function updateAttendance(studentName, subjectIdx, isPresent) {
-        const dayData = attendanceData[currentDay];
-        if (!dayData[studentName]) dayData[studentName] = [false, false, false, false];
-        dayData[studentName][subjectIdx] = isPresent;
+        attendanceData[currentDay][studentName][subjectIdx] = isPresent;
         saveToLocalStorage();
         renderAll();
     }
@@ -212,18 +456,17 @@
     
     function resetCurrentDay() {
         if (!confirm(`Сбросить все отметки для ${DAY_FULL[currentDay]}?`)) return;
-        const dayData = attendanceData[currentDay];
-        for (let student of STUDENTS) {
-            dayData[student] = [false, false, false, false];
+        for (let student of STUDENTS_FULL) {
+            attendanceData[currentDay][student] = [false, false, false, false];
         }
         saveToLocalStorage();
         renderAll();
     }
     
     function clearAllData() {
-        if (!confirm('Очистить ВСЕ данные (все дни недели)? Это удалит все отметки, названия и даты.')) return;
+        if (!confirm('Очистить ВСЕ данные (все дни)? Это удалит все отметки, названия и даты.')) return;
         for (let day of DAYS) {
-            for (let student of STUDENTS) {
+            for (let student of STUDENTS_FULL) {
                 attendanceData[day][student] = [false, false, false, false];
             }
             subjectTexts[day] = { 0: "", 1: "", 2: "", 3: "" };
@@ -233,24 +476,7 @@
         renderAll();
     }
     
-    function getUniqueAttendedStudents() {
-        const dayData = getCurrentAttendance();
-        const unique = [];
-        for (let student of STUDENTS) {
-            if (dayData[student]?.some(v => v === true)) {
-                unique.push(getShortName(student));
-            }
-        }
-        return unique;
-    }
-    
-    function getCurrentDayDate() {
-        const dates = getCurrentDateTexts();
-        for (let i = 0; i < SUBJECTS_COUNT; i++) {
-            if (dates[i] && dates[i].trim()) return dates[i].trim();
-        }
-        return "";
-    }
+    // ========== UI РЕНДЕРИНГ ==========
     
     function renderWeekdays() {
         const bar = document.getElementById('weekdaysBar');
@@ -262,88 +488,88 @@
             btn.onclick = () => { currentDay = day; renderAll(); renderWeekdays(); };
             bar.appendChild(btn);
         }
-        const resetBtn = document.createElement('button');
-        resetBtn.textContent = '⟳ Сбросить день';
-        resetBtn.className = 'reset-btn';
-        resetBtn.onclick = resetCurrentDay;
-        bar.appendChild(resetBtn);
-        
-        const clearAllBtn = document.createElement('button');
-        clearAllBtn.textContent = '🗑 Очистить всё';
-        clearAllBtn.className = 'reset-btn';
-        clearAllBtn.style.background = '#fff1f0';
-        clearAllBtn.style.borderColor = '#fbc4c1';
-        clearAllBtn.style.color = '#b13e3e';
-        clearAllBtn.onclick = clearAllData;
-        bar.appendChild(clearAllBtn);
-    }
-    
-    function renderTable() {
-        const header = document.getElementById('headerRow');
-        const texts = getCurrentSubjectTexts();
-        header.innerHTML = '<th>👥 Студент</th>';
-        for (let i = 0; i < SUBJECTS_COUNT; i++) {
-            const additional = texts[i] ? ` — ${escapeHtml(texts[i])}` : '';
-            header.innerHTML += `<th>${i+1} пара${additional} <span style="font-size:0.65rem; background:#e9edf2; padding:2px 8px; border-radius:40px; margin-left:6px;" id="statBadge_${i}">0/${STUDENTS_COUNT}</span></th>`;
-        }
-        
-        const tbody = document.getElementById('tableBody');
-        tbody.innerHTML = '';
-        const dayData = getCurrentAttendance();
-        
-        for (let student of STUDENTS) {
-            const presents = dayData[student] || [false, false, false, false];
-            const row = tbody.insertRow();
-            row.insertCell(0).innerHTML = `<strong class="student-name">${escapeHtml(getShortName(student))}</strong>`;
-            for (let i = 0; i < SUBJECTS_COUNT; i++) {
-                const isPresent = presents[i];
-                row.insertCell(i+1).innerHTML = `<div style="text-align:center">
-                    <span class="badge ${isPresent ? 'present' : 'absent'}">${isPresent ? 'Присутствовал(а)' : 'Отсутствовал(а)'}</span>
-                    <div class="action-icons">
-                        <button class="icon-btn" onclick="updateAttendance('${escapeHtml(student)}', ${i}, true)">➕</button>
-                        <button class="icon-btn" onclick="updateAttendance('${escapeHtml(student)}', ${i}, false)">➖</button>
-                    </div>
-                </div>`;
-            }
-        }
-        
-        // Обновляем счётчики
-        for (let i = 0; i < SUBJECTS_COUNT; i++) {
-            let count = 0;
-            for (let student of STUDENTS) {
-                if (dayData[student]?.[i]) count++;
-            }
-            const span = document.getElementById(`statBadge_${i}`);
-            if (span) span.innerText = `${count}/${STUDENTS_COUNT}`;
-        }
     }
     
     function renderUniqueAttendance() {
-        const uniqueList = getUniqueAttendedStudents();
+        const dayData = getCurrentAttendance();
+        const uniqueList = [];
+        for (let student of STUDENTS_FULL) {
+            if (dayData[student]?.some(v => v === true)) {
+                uniqueList.push(getShortName(student));
+            }
+        }
         const container = document.getElementById('uniqueAttendanceBlock');
-        if (!container) return;
-        const dateText = getCurrentDayDate();
-        const dateHtml = dateText ? `<div class="unique-date-badge" style="font-size:0.75rem; background:#ffefcf; padding:4px 12px; border-radius:40px; color:#a07c2e;">📅 ${escapeHtml(dateText)}</div>` : '';
+        const dates = getCurrentDateTexts();
+        let dateValue = "";
+        for (let i = 0; i < SUBJECTS_COUNT; i++) {
+            if (dates[i] && dates[i].trim()) { dateValue = dates[i].trim(); break; }
+        }
+        const dateHtml = dateValue ? `<div class="unique-date">📅 ${escapeHtml(dateValue)}</div>` : '';
         let html = `
-            <div class="unique-attendance-block" style="background:#fef9e6; border:1px solid #ffe5b4; border-radius:28px; padding:1rem 1.2rem; margin-bottom:1.5rem;">
-                <div style="display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; margin-bottom:0.8rem; border-bottom:2px solid #ffdd99; padding-bottom:6px;">
-                    <div style="display:flex; align-items:baseline; gap:8px; flex-wrap:wrap;">
-                        <h3 style="margin:0; font-size:1rem; color:#8a6e2f;">👥 ${DAY_FULL[currentDay]} — Все, кто был хотя бы на одной паре</h3>
-                        ${dateHtml}
-                    </div>
-                    <div style="background:#ffefcf; padding:4px 12px; border-radius:40px; font-size:0.75rem; color:#a07c2e;">👤 ${uniqueList.length} / ${STUDENTS_COUNT}</div>
+            <div class="unique-attendance-block">
+                <div class="unique-header">
+                    <h3>👥 ${DAY_FULL[currentDay]} — кто был хотя бы на одной паре</h3>
+                    ${dateHtml}
+                    <div class="unique-count">${uniqueList.length} / ${STUDENTS_COUNT}</div>
                 </div>
-                <div style="display:flex; flex-wrap:wrap; gap:8px; max-height:200px; overflow-y:auto; padding:4px 0;">
+                <div class="unique-list">
         `;
         if (uniqueList.length === 0) {
-            html += `<div style="color:#b88b3a; font-style:italic; font-size:0.8rem; padding:12px; text-align:center;">— пока никто не отмечен —</div>`;
+            html += `<div class="empty-unique">— пока никто не отмечен —</div>`;
         } else {
             for (let name of uniqueList) {
-                html += `<span style="background:#fff5e0; border:1px solid #ffdb9e; padding:6px 14px; border-radius:40px; font-size:0.8rem; color:#5e4a1e;">${escapeHtml(name)}</span>`;
+                html += `<span class="unique-student-tag">${escapeHtml(name)}</span>`;
             }
         }
         html += `</div></div>`;
         container.innerHTML = html;
+    }
+    
+    function renderStudentsList() {
+        const container = document.getElementById('studentsList');
+        const dayData = getCurrentAttendance();
+        const texts = getCurrentSubjectTexts();
+        container.innerHTML = '';
+        
+        for (let student of STUDENTS_FULL) {
+            const presents = dayData[student] || [false, false, false, false];
+            const shortName = getShortName(student);
+            let subjectsHtml = '';
+            for (let i = 0; i < SUBJECTS_COUNT; i++) {
+                const isPresent = presents[i];
+                const subjectLabel = texts[i] ? `${i+1} — ${escapeHtml(texts[i])}` : `${i+1} пара`;
+                subjectsHtml += `
+                    <div class="subject-item">
+                        <span class="subject-label">${escapeHtml(subjectLabel)}</span>
+                        <span class="status-badge ${isPresent ? 'status-present' : 'status-absent'}">${isPresent ? 'Присутствовал(а)' : 'Отсутствовал(а)'}</span>
+                        <div class="student-actions">
+                            <button class="student-icon-btn add-btn" data-student="${escapeHtml(student)}" data-subj="${i}" data-action="add">➕</button>
+                            <button class="student-icon-btn remove-btn" data-student="${escapeHtml(student)}" data-subj="${i}" data-action="remove">➖</button>
+                        </div>
+                    </div>
+                `;
+            }
+            const card = document.createElement('div');
+            card.className = 'student-card';
+            card.innerHTML = `<div class="student-name">${escapeHtml(shortName)}</div><div class="subjects-row">${subjectsHtml}</div>`;
+            container.appendChild(card);
+        }
+        
+        // Привязываем обработчики к кнопкам
+        document.querySelectorAll('.add-btn').forEach(btn => {
+            btn.onclick = () => {
+                const student = btn.getAttribute('data-student');
+                const subj = parseInt(btn.getAttribute('data-subj'));
+                updateAttendance(student, subj, true);
+            };
+        });
+        document.querySelectorAll('.remove-btn').forEach(btn => {
+            btn.onclick = () => {
+                const student = btn.getAttribute('data-student');
+                const subj = parseInt(btn.getAttribute('data-subj'));
+                updateAttendance(student, subj, false);
+            };
+        });
     }
     
     function renderSummaries() {
@@ -354,61 +580,72 @@
         let html = '';
         for (let i = 0; i < SUBJECTS_COUNT; i++) {
             const present = [], absent = [];
-            for (let student of STUDENTS) {
+            for (let student of STUDENTS_FULL) {
                 const short = getShortName(student);
                 const isPresent = dayData[student]?.[i] || false;
                 if (isPresent) present.push(short);
                 else absent.push(short);
             }
-            html += `<div class="summary-card">
-                <div class="card-header">
-                    <div><strong>${i+1} пара</strong> <input class="subject-input" value="${escapeHtml(texts[i] || '')}" placeholder="Название..." onchange="updateSubjectText(${i}, this.value)"></div>
-                    <div><span style="background:white; padding:2px 10px; border-radius:40px;">${present.length}/${STUDENTS_COUNT}</span>
-                    <input class="date-input" value="${escapeHtml(dates[i] || '')}" placeholder="ДД.ММ.ГГГГ" onchange="updateDateText(${i}, this.value)"></div>
+            html += `
+                <div class="summary-card">
+                    <div class="card-header">
+                        <div><strong>${i+1} пара</strong> <input class="subject-input" value="${escapeHtml(texts[i] || '')}" placeholder="Название..." data-subj="${i}" data-type="text"></div>
+                        <div><span style="background:white; padding:2px 10px; border-radius:40px;">${present.length}/${STUDENTS_COUNT}</span>
+                        <input class="date-input" value="${escapeHtml(dates[i] || '')}" placeholder="ДД.ММ.ГГГГ" data-subj="${i}" data-type="date"></div>
+                    </div>
+                    <div class="split-lists">
+                        <div class="section-title" style="color:#15803d;">✅ ПРИСУТСТВОВАЛ(А) <span class="count-badge">${present.length}</span></div>
+                        <div>${present.length ? present.map(n => `<span class="student-tag" data-short="${escapeHtml(n)}" data-subj="${i}" data-status="present">${escapeHtml(n)}</span>`).join('') : '<div class="empty-message">— нажмите на имя —</div>'}</div>
+                        <div class="section-title" style="color:#b91c1c; margin-top:12px;">❌ ОТСУТСТВОВАЛ(А) <span class="count-badge">${absent.length}</span></div>
+                        <div>${absent.length ? absent.map(n => `<span class="student-tag" data-short="${escapeHtml(n)}" data-subj="${i}" data-status="absent">${escapeHtml(n)}</span>`).join('') : '<div class="empty-message">— нажмите на имя —</div>'}</div>
+                    </div>
                 </div>
-                <div class="split-lists">
-                    <div class="section-title" style="color:#15803d;">✅ ПРИСУТСТВОВАЛ(А) <span class="count-badge" style="background:white; border-radius:40px; padding:2px 10px;">${present.length}</span></div>
-                    <div class="drop-zone">${present.length ? present.map(n => `<span class="student-tag" onclick="toggleTag('${escapeHtml(n)}', ${i}, true)">${escapeHtml(n)}</span>`).join('') : '<div class="empty-message">— нажмите —</div>'}</div>
-                    <div class="section-title" style="color:#b91c1c; margin-top:12px;">❌ ОТСУТСТВОВАЛ(А) <span class="count-badge" style="background:white; border-radius:40px; padding:2px 10px;">${absent.length}</span></div>
-                    <div class="drop-zone">${absent.length ? absent.map(n => `<span class="student-tag" onclick="toggleTag('${escapeHtml(n)}', ${i}, false)">${escapeHtml(n)}</span>`).join('') : '<div class="empty-message">— нажмите —</div>'}</div>
-                </div>
-            </div>`;
+            `;
         }
         container.innerHTML = html;
-    }
-    
-    async function toggleTag(shortName, subjectIdx, wasPresent) {
-        for (let student of STUDENTS) {
-            if (getShortName(student) === shortName) {
-                updateAttendance(student, subjectIdx, !wasPresent);
-                break;
-            }
-        }
+        
+        // Обработчики для полей ввода
+        document.querySelectorAll('.subject-input').forEach(inp => {
+            const subj = parseInt(inp.getAttribute('data-subj'));
+            inp.onchange = () => updateSubjectText(subj, inp.value);
+        });
+        document.querySelectorAll('.date-input').forEach(inp => {
+            const subj = parseInt(inp.getAttribute('data-subj'));
+            inp.onchange = () => updateDateText(subj, inp.value);
+        });
+        
+        // Обработчики для клика по имени в сводках (тап — меняет статус)
+        document.querySelectorAll('.student-tag').forEach(tag => {
+            tag.onclick = () => {
+                const shortName = tag.getAttribute('data-short');
+                const subjectIdx = parseInt(tag.getAttribute('data-subj'));
+                const currentStatus = tag.getAttribute('data-status'); // 'present' или 'absent'
+                const newStatus = currentStatus === 'present' ? false : true;
+                for (let student of STUDENTS_FULL) {
+                    if (getShortName(student) === shortName) {
+                        updateAttendance(student, subjectIdx, newStatus);
+                        break;
+                    }
+                }
+            };
+        });
     }
     
     function renderAll() {
-        renderTable();
-        renderSummaries();
         renderUniqueAttendance();
+        renderStudentsList();
+        renderSummaries();
     }
     
     function escapeHtml(str) { return String(str).replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m])); }
     
-    // Глобальные функции для вызова из onclick
-    window.updateAttendance = updateAttendance;
-    window.updateSubjectText = updateSubjectText;
-    window.updateDateText = updateDateText;
-    window.toggleTag = toggleTag;
-    
-    // Добавляем контейнер для уникальных студентов
-    const leftGrid = document.querySelector('.table-container');
-    const uniqueBlock = document.createElement('div');
-    uniqueBlock.id = 'uniqueAttendanceBlock';
-    leftGrid.parentNode.insertBefore(uniqueBlock, leftGrid);
-    
+    // ========== ИНИЦИАЛИЗАЦИЯ ==========
     initData();
     renderWeekdays();
     renderAll();
+    
+    document.getElementById('resetDayBtn').onclick = resetCurrentDay;
+    document.getElementById('clearAllBtn').onclick = clearAllData;
 </script>
 </body>
-</html>
+            </html>
