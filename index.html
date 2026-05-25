@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>Журнал посещаемости | Мобильная версия</title>
+    <title>Журнал посещаемости | Статичные сводки</title>
     <style>
         * {
             box-sizing: border-box;
@@ -99,38 +99,38 @@
             color: #b13e3e;
         }
 
-        /* Блок "Все, кто был хотя бы на одной паре" */
-        .unique-attendance-block {
+        /* СТАТИЧНЫЕ СВОДКИ — без прокрутки, компактно */
+        .summary-block {
             background: #fef9e6;
             border: 1px solid #ffe5b4;
             border-radius: 20px;
-            padding: 0.8rem;
+            padding: 0.7rem;
             margin: 0.8rem;
         }
-        .unique-header {
+        .summary-header {
             display: flex;
             justify-content: space-between;
             align-items: baseline;
             flex-wrap: wrap;
-            gap: 8px;
-            margin-bottom: 10px;
+            gap: 6px;
+            margin-bottom: 8px;
             border-bottom: 2px solid #ffdd99;
             padding-bottom: 6px;
         }
-        .unique-header h3 {
+        .summary-header h3 {
             margin: 0;
             font-size: 0.85rem;
             font-weight: 700;
             color: #8a6e2f;
         }
-        .unique-date {
+        .summary-date {
             font-size: 0.7rem;
             background: #ffefcf;
             padding: 3px 10px;
             border-radius: 40px;
             color: #a07c2e;
         }
-        .unique-count {
+        .summary-count {
             background: #ffefcf;
             padding: 3px 10px;
             border-radius: 40px;
@@ -138,28 +138,54 @@
             font-weight: 600;
             color: #a07c2e;
         }
-        .unique-list {
+        /* Список имён — flex, перенос строк, БЕЗ ПРОКРУТКИ и БЕЗ ОБРЕЗАНИЯ */
+        .summary-list {
             display: flex;
             flex-wrap: wrap;
             gap: 6px;
-            max-height: 150px;
-            overflow-y: auto;
+            justify-content: flex-start;
+            max-height: none;
+            overflow: visible;
         }
-        .unique-student-tag {
+        .summary-tag {
             background: #fff5e0;
             border: 1px solid #ffdb9e;
             padding: 5px 12px;
             border-radius: 40px;
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             font-weight: 500;
             color: #5e4a1e;
+            white-space: normal;
+            word-break: keep-all;
         }
-        .empty-unique {
+        .empty-summary {
             color: #b88b3a;
             font-style: italic;
             font-size: 0.75rem;
-            padding: 10px;
+            padding: 8px;
             text-align: center;
+            width: 100%;
+        }
+
+        /* Сводка "кого не было" — другой цвет */
+        .summary-block.never-block {
+            background: #fef2f0;
+            border-color: #ffcdc5;
+        }
+        .summary-block.never-block .summary-header {
+            border-bottom-color: #ffb8ae;
+        }
+        .summary-block.never-block .summary-header h3 {
+            color: #b13e3e;
+        }
+        .summary-block.never-block .summary-count {
+            background: #ffe0db;
+            color: #b13e3e;
+        }
+        .summary-block.never-block .summary-tag {
+            background: #ffe6e5;
+            border-color: #fcc4c1;
+            color: #b13e3e;
         }
 
         /* Карточки студентов (вместо таблицы) */
@@ -234,7 +260,7 @@
         .add-btn { background: #e6f7e6; color: #2b6e2f; }
         .remove-btn { background: #ffe6e5; color: #b13e3e; }
 
-        /* Сводные карточки (правые) */
+        /* Сводные карточки по парам */
         .summary-container {
             padding: 0.8rem;
             display: flex;
@@ -317,12 +343,11 @@
             font-size: 0.65rem;
         }
 
-        /* Утилиты */
-        .hidden { display: none; }
         @media (max-width: 480px) {
             .subject-label { min-width: 85px; font-size: 0.65rem; }
             .status-badge { min-width: 95px; font-size: 0.65rem; }
             .student-icon-btn { padding: 5px 10px; }
+            .summary-tag { font-size: 0.7rem; padding: 4px 10px; }
         }
     </style>
 </head>
@@ -342,8 +367,11 @@
         <button class="clear-btn" id="clearAllBtn">🗑 Очистить всё</button>
     </div>
 
-    <!-- Блок "Все, кто был хотя бы на одной паре" -->
+    <!-- СВОДКА 1: кто был хотя бы на одной паре (СТАТИЧНАЯ, без прокрутки) -->
     <div id="uniqueAttendanceBlock"></div>
+
+    <!-- СВОДКА 2: кого не было ни на одной паре (СТАТИЧНАЯ, без прокрутки) -->
+    <div id="neverAttendedBlock"></div>
 
     <!-- Список студентов (карточки) -->
     <div class="students-list" id="studentsList"></div>
@@ -377,11 +405,11 @@
     const DAY_FULL = { mon: 'Понедельник', tue: 'Вторник', wed: 'Среда', thu: 'Четверг', fri: 'Пятница' };
     
     let currentDay = 'mon';
-    let attendanceData = {};      // { day: { studentName: [p0,p1,p2,p3] } }
-    let subjectTexts = {};        // { day: { 0: "", 1: "", ... } }
-    let dateTexts = {};           // { day: { 0: "", 1: "", ... } }
+    let attendanceData = {};
+    let subjectTexts = {};
+    let dateTexts = {};
     
-    const STORAGE_KEY = 'attendance_mobile_v1';
+    const STORAGE_KEY = 'attendance_mobile_v3_static';
     
     function getShortName(full) { let p = full.split(/\s+/); return p.length >= 2 ? `${p[0]} ${p[1]}` : full; }
     
@@ -417,7 +445,6 @@
             }
             saveToLocalStorage();
         }
-        // Проверка и заполнение недостающих
         for (let day of DAYS) {
             if (!attendanceData[day]) attendanceData[day] = {};
             if (!subjectTexts[day]) subjectTexts[day] = { 0: "", 1: "", 2: "", 3: "" };
@@ -476,6 +503,37 @@
         renderAll();
     }
     
+    // Получение списков
+    function getAttendedStudents() {
+        const dayData = getCurrentAttendance();
+        const result = [];
+        for (let student of STUDENTS_FULL) {
+            if (dayData[student]?.some(v => v === true)) {
+                result.push(getShortName(student));
+            }
+        }
+        return result;
+    }
+    
+    function getNeverAttendedStudents() {
+        const dayData = getCurrentAttendance();
+        const result = [];
+        for (let student of STUDENTS_FULL) {
+            if (!dayData[student]?.some(v => v === true)) {
+                result.push(getShortName(student));
+            }
+        }
+        return result;
+    }
+    
+    function getCurrentDayDate() {
+        const dates = getCurrentDateTexts();
+        for (let i = 0; i < SUBJECTS_COUNT; i++) {
+            if (dates[i] && dates[i].trim()) return dates[i].trim();
+        }
+        return "";
+    }
+    
     // ========== UI РЕНДЕРИНГ ==========
     
     function renderWeekdays() {
@@ -490,35 +548,52 @@
         }
     }
     
-    function renderUniqueAttendance() {
-        const dayData = getCurrentAttendance();
-        const uniqueList = [];
-        for (let student of STUDENTS_FULL) {
-            if (dayData[student]?.some(v => v === true)) {
-                uniqueList.push(getShortName(student));
+    // Сводка "кто был хотя бы на одной паре" — статичная, без прокрутки
+    function renderAttendedBlock() {
+        const attendedList = getAttendedStudents();
+        const container = document.getElementById('uniqueAttendanceBlock');
+        const dateValue = getCurrentDayDate();
+        const dateHtml = dateValue ? `<div class="summary-date">📅 ${escapeHtml(dateValue)}</div>` : '';
+        let html = `
+            <div class="summary-block">
+                <div class="summary-header">
+                    <h3>✅ ${DAY_FULL[currentDay]} — присутсвовали на парах</h3>
+                    ${dateHtml}
+                    <div class="summary-count">${attendedList.length} / ${STUDENTS_COUNT}</div>
+                </div>
+                <div class="summary-list">
+        `;
+        if (attendedList.length === 0) {
+            html += `<div class="empty-summary">— никто не отмечен —</div>`;
+        } else {
+            for (let name of attendedList) {
+                html += `<span class="summary-tag">${escapeHtml(name)}</span>`;
             }
         }
-        const container = document.getElementById('uniqueAttendanceBlock');
-        const dates = getCurrentDateTexts();
-        let dateValue = "";
-        for (let i = 0; i < SUBJECTS_COUNT; i++) {
-            if (dates[i] && dates[i].trim()) { dateValue = dates[i].trim(); break; }
-        }
-        const dateHtml = dateValue ? `<div class="unique-date">📅 ${escapeHtml(dateValue)}</div>` : '';
+        html += `</div></div>`;
+        container.innerHTML = html;
+    }
+    
+    // Сводка "кого не было ни на одной паре" — статичная, без прокрутки
+    function renderNeverAttendedBlock() {
+        const neverList = getNeverAttendedStudents();
+        const container = document.getElementById('neverAttendedBlock');
+        const dateValue = getCurrentDayDate();
+        const dateHtml = dateValue ? `<div class="summary-date">📅 ${escapeHtml(dateValue)}</div>` : '';
         let html = `
-            <div class="unique-attendance-block">
-                <div class="unique-header">
-                    <h3>👥 ${DAY_FULL[currentDay]} — кто был хотя бы на одной паре</h3>
+            <div class="summary-block never-block">
+                <div class="summary-header">
+                    <h3>❌ ${DAY_FULL[currentDay]} — отсутвовали на парах</h3>
                     ${dateHtml}
-                    <div class="unique-count">${uniqueList.length} / ${STUDENTS_COUNT}</div>
+                    <div class="summary-count">${neverList.length} / ${STUDENTS_COUNT}</div>
                 </div>
-                <div class="unique-list">
+                <div class="summary-list">
         `;
-        if (uniqueList.length === 0) {
-            html += `<div class="empty-unique">— пока никто не отмечен —</div>`;
+        if (neverList.length === 0) {
+            html += `<div class="empty-summary">— все были хотя бы на одной паре —</div>`;
         } else {
-            for (let name of uniqueList) {
-                html += `<span class="unique-student-tag">${escapeHtml(name)}</span>`;
+            for (let name of neverList) {
+                html += `<span class="summary-tag">${escapeHtml(name)}</span>`;
             }
         }
         html += `</div></div>`;
@@ -555,7 +630,6 @@
             container.appendChild(card);
         }
         
-        // Привязываем обработчики к кнопкам
         document.querySelectorAll('.add-btn').forEach(btn => {
             btn.onclick = () => {
                 const student = btn.getAttribute('data-student');
@@ -604,7 +678,6 @@
         }
         container.innerHTML = html;
         
-        // Обработчики для полей ввода
         document.querySelectorAll('.subject-input').forEach(inp => {
             const subj = parseInt(inp.getAttribute('data-subj'));
             inp.onchange = () => updateSubjectText(subj, inp.value);
@@ -614,12 +687,11 @@
             inp.onchange = () => updateDateText(subj, inp.value);
         });
         
-        // Обработчики для клика по имени в сводках (тап — меняет статус)
         document.querySelectorAll('.student-tag').forEach(tag => {
             tag.onclick = () => {
                 const shortName = tag.getAttribute('data-short');
                 const subjectIdx = parseInt(tag.getAttribute('data-subj'));
-                const currentStatus = tag.getAttribute('data-status'); // 'present' или 'absent'
+                const currentStatus = tag.getAttribute('data-status');
                 const newStatus = currentStatus === 'present' ? false : true;
                 for (let student of STUDENTS_FULL) {
                     if (getShortName(student) === shortName) {
@@ -632,14 +704,15 @@
     }
     
     function renderAll() {
-        renderUniqueAttendance();
+        renderAttendedBlock();
+        renderNeverAttendedBlock();
         renderStudentsList();
         renderSummaries();
     }
     
     function escapeHtml(str) { return String(str).replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m])); }
     
-    // ========== ИНИЦИАЛИЗАЦИЯ ==========
+    // ИНИЦИАЛИЗАЦИЯ
     initData();
     renderWeekdays();
     renderAll();
@@ -648,4 +721,4 @@
     document.getElementById('clearAllBtn').onclick = clearAllData;
 </script>
 </body>
-            </html>
+</html>
