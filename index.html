@@ -2,179 +2,285 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>Журнал посещаемости | Дата отображается в сводке</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Журнал посещаемости | Supabase</title>
     <style>
-        * {
-            box-sizing: border-box;
-            font-family: system-ui, -apple-system, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
-        }
+        * { box-sizing: border-box; font-family: system-ui, sans-serif; }
+        body { background: #eef2f8; margin: 0; padding: 16px; }
+        .main-dashboard { max-width: 1600px; margin: 0 auto; background: white; border-radius: 32px; overflow: hidden; box-shadow: 0 20px 40px -12px rgba(0,0,0,0.15); }
+        .header { background: #0f2b3d; padding: 1rem 1.5rem; color: white; }
+        .header h1 { margin: 0; font-size: 1.5rem; }
+        .header p { margin: 0.3rem 0 0; opacity: 0.8; font-size: 0.8rem; }
+        .weekdays-bar { background: #f8fafc; padding: 0.8rem; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; border-bottom: 1px solid #e4e9f0; }
+        .day-btn { background: #f1f5f9; border: 1px solid #cbd5e6; padding: 8px 20px; border-radius: 40px; cursor: pointer; font-weight: 500; }
+        .day-btn.active { background: #1f3b4c; color: white; }
+        .reset-btn { background: #f1f5f9; border: 1px solid #cbd5e6; padding: 8px 20px; border-radius: 40px; cursor: pointer; margin-left: 10px; }
+        .status { padding: 0.5rem 1rem; background: #e6f7e6; margin: 0.5rem 1rem; border-radius: 40px; font-size: 0.8rem; text-align: center; }
+        .status.error { background: #fee2e2; color: #b91c1c; }
+        .two-columns { display: flex; flex-wrap: wrap; gap: 24px; padding: 1.5rem; }
+        .table-container { flex: 2; overflow-x: auto; }
+        .summary-container { flex: 1.4; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        th, td { padding: 10px 8px; border-bottom: 1px solid #e2e8f0; text-align: left; }
+        .student-name { font-weight: 600; }
+        .badge { display: inline-block; padding: 4px 12px; border-radius: 32px; font-size: 0.7rem; font-weight: 600; min-width: 110px; text-align: center; }
+        .present { background: #dcfce7; color: #15803d; }
+        .absent { background: #fee9e6; color: #b91c1c; }
+        .action-icons { display: flex; gap: 6px; margin-top: 5px; justify-content: center; }
+        .icon-btn { background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 30px; padding: 3px 10px; font-size: 0.65rem; cursor: pointer; }
+        .summary-card { background: #fefefe; border: 1px solid #e9edf2; border-radius: 24px; margin-bottom: 16px; overflow: hidden; }
+        .card-header { background: #f1f5f9; padding: 10px 16px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; border-bottom: 1px solid #e2e8f0; }
+        .subject-input { padding: 4px 10px; border-radius: 60px; border: 1px solid #cbd5e1; font-size: 0.8rem; width: 150px; }
+        .date-input { padding: 4px 10px; border-radius: 60px; border: 1px solid #cbd5e1; font-size: 0.7rem; width: 100px; text-align: center; }
+        .split-lists { padding: 12px; }
+        .present-block, .absent-block { margin-bottom: 16px; }
+        .section-title { font-weight: 600; font-size: 0.75rem; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+        .count-badge { background: white; border-radius: 40px; padding: 2px 10px; font-size: 0.65rem; }
+        .student-tag { background: #f8fafc; padding: 5px 12px; border-radius: 40px; font-size: 0.75rem; display: inline-block; margin: 4px 6px 4px 0; border: 1px solid #cbd5e1; cursor: pointer; }
+        .drop-zone { min-height: 65px; padding: 6px; background: #fafcff; border-radius: 16px; }
+        .empty-message { color: #94a3b8; font-style: italic; font-size: 0.7rem; text-align: center; padding: 12px; }
+        .legend-bottom { display: flex; gap: 20px; justify-content: center; padding: 1rem; background: #f9fbfd; border-top: 1px solid #e4e9f0; font-size: 0.7rem; flex-wrap: wrap; }
+        @media (max-width: 768px) { .two-columns { flex-direction: column; } .subject-input { width: 120px; } }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+<div class="main-dashboard">
+    <div class="header">
+        <h1>📋 Журнал посещаемости</h1>
+        <p>Синхронизация через Supabase · Все устройства видят одни и те же данные</p>
+    </div>
+    <div class="weekdays-bar" id="weekdaysBar"></div>
+    <div id="syncStatus" class="status">🔄 Подключение к Supabase...</div>
+    <div class="two-columns">
+        <div class="table-container">
+            <table id="mainTable"><thead><tr id="tableHeader"></tr></thead><tbody id="tableBody"></tbody></table>
+        </div>
+        <div class="summary-container" id="summaryContainer"></div>
+    </div>
+    <div class="legend-bottom">
+        <span>🟢 Присутствовал(а)</span>
+        <span>🔴 Отсутствовал(а)</span>
+        <span>🖱️ Нажмите на имя — измените статус</span>
+        <span>💾 Все изменения синхронизируются в облаке</span>
+    </div>
+</div>
 
-        body {
-            background: #eef2f8;
-            margin: 0;
-            padding: 16px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
+<script>
+    const SUPABASE_URL = 'https://zkm-itre-ubdb0-cuvf5-mp0lw.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_ZkmITreUbdbOCuVF5Mp0lw_H8dbnovf';
 
-        .main-dashboard {
-            max-width: 1800px;
-            width: 100%;
-            background: white;
-            border-radius: 32px;
-            box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.15);
-            overflow: hidden;
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    
+    let currentDay = 'mon';
+    let attendanceData = {};
+    let subjectTexts = {};
+    let dateTexts = {};
+    
+    const DAYS = { mon: 'ПН', tue: 'ВТ', wed: 'СР', thu: 'ЧТ', fri: 'ПТ' };
+    const DAYS_FULL = { mon: 'Понедельник', tue: 'Вторник', wed: 'Среда', thu: 'Четверг', fri: 'Пятница' };
+    
+    // СПИСОК СТУДЕНТОВ (Викторов Александр удалён)
+    const STUDENTS = [
+        "Аношин Михаил Александрович","Богданович Андрей Сергеевич","Бодров Максим Вячеславович",
+        "Гневанов Арсений Данилович","Громов Денис Алексеевич",
+        "Жороев Мухаммад Кудуратович","Зуев Андрей Алексеевич","Кулешов Матвей Сергеевич",
+        "Лялин Даниил Евгеньевич","Науменко Александр Алексеевич","Нугаев Тимур Рушанович",
+        "Островская Диана Андреевна","Павлов Арсений Алексеевич","Перова Кристина Игоревна",
+        "Семянченков Руслан Ихтиёрович","Хохлов Егор Андреевич","Цаплин Иван Николаевич",
+        "Шалагин Артём Алексеевич","Яничев Егор Андреевич"
+    ];
+    
+    function getShortName(full) { let p = full.split(/\s+/); return p.length >= 2 ? `${p[0]} ${p[1]}` : full; }
+    
+    function showToast(msg, isError = false) {
+        const t = document.createElement('div');
+        t.textContent = msg;
+        t.style.cssText = `position:fixed; bottom:20px; left:20px; right:20px; background:${isError ? '#a13e3e' : '#1f5e3a'}; color:white; padding:10px 20px; border-radius:60px; text-align:center; z-index:1000; font-size:0.8rem;`;
+        document.body.appendChild(t);
+        setTimeout(() => t.remove(), 2000);
+    }
+    
+    async function loadData() {
+        try {
+            document.getElementById('syncStatus').textContent = '🔄 Загрузка...';
+            
+            const { data: attendance, error: attError } = await supabase
+                .from('attendance_records')
+                .select('student_name, subject_index, is_present')
+                .eq('day', currentDay);
+            if (attError) throw attError;
+            
+            const { data: settings, error: setError } = await supabase
+                .from('subject_settings')
+                .select('subject_index, subject_text, date_text')
+                .eq('day', currentDay);
+            if (setError) throw setError;
+            
+            attendanceData = {};
+            STUDENTS.forEach(s => { attendanceData[s] = [false, false, false, false]; });
+            if (attendance) {
+                attendance.forEach(rec => { if (attendanceData[rec.student_name]) attendanceData[rec.student_name][rec.subject_index] = rec.is_present; });
+            }
+            
+            subjectTexts = {};
+            dateTexts = {};
+            if (settings) {
+                settings.forEach(set => {
+                    subjectTexts[set.subject_index] = set.subject_text || '';
+                    dateTexts[set.subject_index] = set.date_text || '';
+                });
+            }
+            
+            document.getElementById('syncStatus').textContent = '✅ Готово';
+            renderAll();
+        } catch(e) {
+            console.error(e);
+            document.getElementById('syncStatus').textContent = '❌ Ошибка подключения';
+            document.getElementById('syncStatus').classList.add('error');
+            showToast('Ошибка загрузки данных. Проверьте таблицы в Supabase.', true);
         }
-
-        .journal-header {
-            background: #0f2b3d;
-            padding: 1.2rem 1.5rem;
-            color: white;
+    }
+    
+    async function updateAttendance(fullName, subjectIdx, isPresent) {
+        try {
+            await supabase
+                .from('attendance_records')
+                .update({ is_present: isPresent, updated_at: new Date() })
+                .eq('day', currentDay)
+                .eq('subject_index', subjectIdx)
+                .eq('student_name', fullName);
+            
+            if (attendanceData[fullName]) attendanceData[fullName][subjectIdx] = isPresent;
+            renderAll();
+            showToast(`${getShortName(fullName)} → ${isPresent ? 'присутствует' : 'отсутствует'}`);
+        } catch(e) { showToast('Ошибка сохранения', true); }
+    }
+    
+    async function updateSubjectText(idx, value) {
+        subjectTexts[idx] = value;
+        await supabase.from('subject_settings').upsert({ 
+            day: currentDay, subject_index: idx, subject_text: value, updated_at: new Date()
+        }, { onConflict: 'day, subject_index' });
+        renderAll();
+    }
+    
+    async function updateDateField(idx, value) {
+        dateTexts[idx] = value;
+        await supabase.from('subject_settings').upsert({ 
+            day: currentDay, subject_index: idx, date_text: value, updated_at: new Date()
+        }, { onConflict: 'day, subject_index' });
+        renderAll();
+    }
+    
+    async function resetDay() {
+        if (!confirm(`Сбросить отметки для ${DAYS_FULL[currentDay]}?`)) return;
+        for (let i = 0; i < 4; i++) {
+            for (let student of STUDENTS) {
+                await supabase
+                    .from('attendance_records')
+                    .update({ is_present: false, updated_at: new Date() })
+                    .eq('day', currentDay)
+                    .eq('subject_index', i)
+                    .eq('student_name', student);
+            }
         }
-        .journal-header h1 {
-            margin: 0;
-            font-size: 1.5rem;
-            font-weight: 650;
+        await loadData();
+        showToast(`Посещаемость для ${DAYS_FULL[currentDay]} сброшена`);
+    }
+    
+    async function toggleTag(shortName, subjectIdx, wasPresent) {
+        for (const fullName of STUDENTS) {
+            if (getShortName(fullName) === shortName) {
+                await updateAttendance(fullName, subjectIdx, !wasPresent);
+                break;
+            }
         }
-        .journal-header p {
-            margin: 0.4rem 0 0;
-            opacity: 0.8;
-            font-size: 0.8rem;
+    }
+    
+    function renderWeekdays() {
+        const bar = document.getElementById('weekdaysBar');
+        bar.innerHTML = '';
+        Object.keys(DAYS).forEach(day => {
+            const btn = document.createElement('button');
+            btn.textContent = DAYS[day];
+            btn.className = `day-btn ${currentDay === day ? 'active' : ''}`;
+            btn.onclick = async () => { currentDay = day; await loadData(); renderWeekdays(); };
+            bar.appendChild(btn);
+        });
+        const resetBtn = document.createElement('button');
+        resetBtn.textContent = '⟳ Сбросить день';
+        resetBtn.className = 'reset-btn';
+        resetBtn.onclick = resetDay;
+        bar.appendChild(resetBtn);
+    }
+    
+    function renderTable() {
+        const header = document.getElementById('tableHeader');
+        header.innerHTML = '<th>👥 Студент</th>';
+        for (let i = 0; i < 4; i++) {
+            header.innerHTML += `<th>${i+1} пара ${subjectTexts[i] ? `— ${escapeHtml(subjectTexts[i])}` : ''}</th>`;
         }
-
-        .weekdays-bar {
-            background: #f8fafc;
-            padding: 0.8rem 1.2rem;
-            border-bottom: 1px solid #e4e9f0;
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            justify-content: center;
+        const tbody = document.getElementById('tableBody');
+        tbody.innerHTML = '';
+        for (const fullName of STUDENTS) {
+            const presents = attendanceData[fullName] || [false, false, false, false];
+            const row = tbody.insertRow();
+            row.insertCell(0).innerHTML = `<strong>${escapeHtml(getShortName(fullName))}</strong>`;
+            for (let i = 0; i < 4; i++) {
+                const isPresent = presents[i];
+                row.insertCell(i+1).innerHTML = `<div style="text-align:center">
+                    <span class="badge ${isPresent ? 'present' : 'absent'}">${isPresent ? 'Присутствовал(а)' : 'Отсутствовал(а)'}</span>
+                    <div class="action-icons">
+                        <button class="icon-btn" onclick="updateAttendance('${escapeHtml(fullName)}', ${i}, true)">➕</button>
+                        <button class="icon-btn" onclick="updateAttendance('${escapeHtml(fullName)}', ${i}, false)">➖</button>
+                    </div>
+                </div>`;
+            }
         }
-        .day-btn {
-            background: #f1f5f9;
-            border: 1px solid #cbd5e6;
-            padding: 8px 20px;
-            border-radius: 40px;
-            font-weight: 600;
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: 0.2s;
-            color: #1e293b;
+    }
+    
+    function renderSummaries() {
+        const container = document.getElementById('summaryContainer');
+        let html = '';
+        for (let i = 0; i < 4; i++) {
+            const present = [], absent = [];
+            for (const fullName of STUDENTS) {
+                const short = getShortName(fullName);
+                const isPresent = attendanceData[fullName]?.[i] || false;
+                if (isPresent) present.push(short);
+                else absent.push(short);
+            }
+            html += `<div class="summary-card">
+                <div class="card-header">
+                    <div><strong>${i+1} пара</strong> <input class="subject-input" value="${escapeHtml(subjectTexts[i] || '')}" placeholder="Название..." onchange="updateSubjectText(${i}, this.value)"></div>
+                    <div><span style="background:white; padding:2px 10px; border-radius:40px;">${present.length}/19</span>
+                    <input class="date-input" value="${escapeHtml(dateTexts[i] || '')}" placeholder="Дата" onchange="updateDateField(${i}, this.value)"></div>
+                </div>
+                <div class="split-lists">
+                    <div><strong style="color:#15803d;">✅ ПРИСУТСТВОВАЛ(А) (${present.length})</strong>
+                    <div class="drop-zone">${present.length ? present.map(n => `<span class="student-tag" onclick="toggleTag('${escapeHtml(n)}', ${i}, true)">${escapeHtml(n)}</span>`).join('') : '<div class="empty-message">— нажмите —</div>'}</div></div>
+                    <div><strong style="color:#b91c1c;">❌ ОТСУТСТВОВАЛ(А) (${absent.length})</strong>
+                    <div class="drop-zone">${absent.length ? absent.map(n => `<span class="student-tag" onclick="toggleTag('${escapeHtml(n)}', ${i}, false)">${escapeHtml(n)}</span>`).join('') : '<div class="empty-message">— нажмите —</div>'}</div></div>
+                </div>
+            </div>`;
         }
-        .day-btn.active {
-            background: #1f3b4c;
-            color: white;
-            border-color: #1f3b4c;
-        }
-        .day-btn:hover:not(.active) {
-            background: #e2e8f0;
-        }
-
-        .top-control-panel {
-            background: #ffffff;
-            padding: 1rem 1.2rem;
-            border-bottom: 1px solid #e4e9f0;
-        }
-        .mark-card {
-            background: #f7f9fc;
-            border-radius: 24px;
-            padding: 1rem;
-        }
-        .flex-row {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        .input-group {
-            width: 100%;
-        }
-        .input-group label {
-            font-size: 0.7rem;
-            font-weight: 600;
-            color: #2c3e5c;
-            margin-bottom: 4px;
-            display: block;
-        }
-        .input-group input, .input-group select {
-            width: 100%;
-            padding: 12px 14px;
-            border-radius: 60px;
-            border: 1px solid #cbdae9;
-            font-size: 0.9rem;
-            background: white;
-        }
-        .double-buttons {
-            display: flex;
-            gap: 12px;
-            margin-top: 4px;
-        }
-        .mark-btn {
-            flex: 1;
-            background: #1f3b4c;
-            border: none;
-            color: white;
-            padding: 12px 16px;
-            border-radius: 60px;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 0.85rem;
-            text-align: center;
-            transition: 0.15s;
-        }
-        .mark-btn.remove-mode {
-            background: #8b3c3c;
-        }
-        .mark-btn:active {
-            transform: scale(0.97);
-        }
-
-        .action-bar {
-            background: #f9fbfd;
-            padding: 0.8rem 1.2rem;
-            border-bottom: 1px solid #e4e9f0;
-            display: flex;
-            justify-content: flex-end;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-        .reset-btn, .clear-storage-btn {
-            background: #f1f5f9;
-            border: 1px solid #cbd5e6;
-            padding: 8px 18px;
-            border-radius: 40px;
-            font-weight: 500;
-            font-size: 0.8rem;
-            cursor: pointer;
-        }
-        .clear-storage-btn {
-            background: #fff1f0;
-            border-color: #fbc4c1;
-            color: #b13e3e;
-        }
-
-        .unique-attendance-block {
-            background: #fef9e6;
-            border: 1px solid #ffe5b4;
-            border-radius: 28px;
-            padding: 1rem 1.2rem;
-            margin-bottom: 1.5rem;
-        }
-        .unique-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: baseline;
-            flex-wrap: wrap;
-            margin-bottom: 0.8rem;
-            border-bottom: 2px solid #ffdd99;
-            padding-bottom: 6px;
-        }
-        .unique-header h3 {
-            margin: 0;
-            font-size: 1rem;
+        container.innerHTML = html;
+    }
+    
+    function renderAll() { renderTable(); renderSummaries(); }
+    function escapeHtml(str) { return String(str).replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m])); }
+    
+    window.updateAttendance = updateAttendance;
+    window.updateSubjectText = updateSubjectText;
+    window.updateDateField = updateDateField;
+    window.toggleTag = toggleTag;
+    
+    renderWeekdays();
+    loadData();
+</script>
+</body>
+</html>            font-size: 1rem;
             font-weight: 700;
             color: #8a6e2f;
         }
